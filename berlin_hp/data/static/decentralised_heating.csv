@@ -1,0 +1,4 @@
+,BE_demand,BE_demand,BE_demand,BE_demand,BE_demand,BE_demand,BE_demand,BE_demand
+,gas,coal,lignite,natural gas,oil,other,re,elec
+efficiency,0.85,0.85,0.85,0.85,0.85,0.85,0.85,0.85
+source,natural gas,hard_coal,lignite,natural gas,oil,other,other,elec

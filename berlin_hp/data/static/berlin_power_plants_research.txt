@@ -1,0 +1,9 @@
+Masterarbeit Andreas von Recklinghausen Tabelle A.7.
+
+- fixed implausible values
+
+commissioning: year
+decommissioning: year
+capacity (elec/th/boil): MW
+fix_costs: kEUR/MW
+variable_costs: EUR/MWh

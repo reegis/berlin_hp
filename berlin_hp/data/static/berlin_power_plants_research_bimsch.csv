@@ -1,0 +1,79 @@
+AST_NR,BETREIBER,ANLNAME,STRASSE,PLZ,patch_exist
+1105609,Vattenfall Europe Wärme HKW Reuter-West,Heizkraftwerk Reuter-West,Großer Spreering 5,13599,1
+1105503,Vattenfall Europe Wärme HKW Mitte,Heizkraftwerk Mitte,Köpenicker Str. 60,10179,1
+1105607,Vattenfall Europe Wärme HKW Lichterfelde,Heizkraftwerk Lichterfelde,Ostpreussendamm 61,12207,1
+1105501,Vattenfall Europe Wärme  HKW Klingenberg,Heizkraftwerk Klingenberg,Köpenicker Chaussee 42-45,10317,1
+1105602,Vattenfall Europe Wärme HKW Reuter,Heizkraftwerk Reuter,Otternbuchtstr. 11,13599,1
+1105604,Vattenfall Europe Wärme HKW Moabit,Heizkraftwerk Moabit,Friedrich-Krause-Ufer 10-15,13353,1
+1750001,RWE  innogy SE Energiedienstleistungen  GmbH Holzheizkraftwerk Neukölln,Holzheizkraftwerk (HHKW) Berlin-Neukölln,Köpenicker Str. 32,12355,1
+1150102,BTB GmbH Berlin HKW Adlershof,Blockheizkraftwerk Adlershof,Albert-Einstein-Str. 22,12489,1
+1105514,Vattenfall Europe Wärme BHKW Köpenick,Blockheizkraftwerk Köpenick,Wendenschloßstr. 176-182,12557,1
+1150101,BTB Heizkraftwerk Schöneweide,BTB HKW Schöneweide,Schnellerstr. 138,12439,1
+1502601,FHW Neukölln AG,Fernheizwerk Neukölln,Weigandufer 49,12059,1
+1502302,Vattenfall Europe Wärme  BHKW Lange Enden,Spitzenheizwerk Lange Enden,Lange Enden 15-25,13437,1
+1502301,Vattenfall Europe Wärme HKW Wallenroder Str.,FHW Märkisches Viertel GmbH Standort Walllenroder Strasse,Wallenroder Str. 2,13435,1
+1105504,Vattenfall Europe Wärme HKW Buch,Heizkraftwerk Buch,Schwanebecker Chaussee 17,13125,1
+1105505,Vattenfall Europe Wärme BHKW Friedrichshagen,Heizwerk Friedrichshagen,Stillerzeile 10/12,12587,1
+1103307,GASAG Contracting GmbH  BHKW Hugenottenplatz1,GASAG BHKW Hugenottenplatz,Hugenottenplatz 1,13127,0
+1056001,Messe Berlin GmbH,Heizwerk Betriebszentrale K 2-6,Messedamm 22,14055,0
+1103310,GASAG Contracting GmbH BHKW Waldsassener Str.,Verbrennungsmotorenanlage,Waldsassener Str. 40a,12279,0
+1033301,afu GmbH,afu Hochdruck-Bodenwaschanlage,Am Vorwerk 11,13127,0
+1100701,BMW MOTORRAD SPANDAU,BMW Werk 3 Berlin Energiezentrale,Am Juliusturm 14-38,13599,0
+1102101,Berliner Wasserbetriebe Klärwerk Ruhleben,Klärschlammverbrennungsanlage Ruhleben,Freiheit 17,13597,0
+1102104,BWB Pumpwerk Berlin VII Genthiner Str.,Verbrennungsmotorenanlage. Dieselkreisel IV,Genthiner Str. 10,10785,0
+1102105,BWB Pumpwerk Berlin VIII Alt-Moabit,Verbrennungsmotorenanlage. Dieselkreisel III und IV,Alt-Moabit 70,10555,0
+1102106,BWB Hauptpumpwerk Britz Späthstr.,Verbrennungsmotorenanlage. Dieselkreisel III und IV,Späthstr. 29,12359,0
+1102108,BWB Hauptpumpwerk Charlottenburg I Sophie-Charlotten-Str,Verbrennungsmotorenanlage. Dieselkreisel I und II,Sophie-Charlotten-Str. 114,14059,0
+1102116,BWB Hauptpumpwerk Wilmersdorf Hohenzollerndamm 208,Verbrennungsmotorenanlage. Dieselkreisel IV und V,Hohenzollerndamm 208,10717,0
+1102119,BWB Pumpwerk Berlin IX Seestr.,Verbrennungsmotorenanlage. Dieselkreisel IV,Seestr. 3,13353,0
+1102129,BWB Pumpwerk Neukölln I Schandauer Str.,Verbrennungsmotorenanlage. Dieselkreisel IV,Schandauer Str. 14,12045,0
+1102132,BWB Hauptpumpwerk Kreuzberg II Gitschiner Str.,Verbrennungsmotorenanlage. Dieselkreisel III,Gitschiner Str. 10,10969,0
+1102134,BWB Pumpwerk Berlin X Bellermannstr.,Verbrennungsmotorenanlage. Dieselkreisel IV,Bellermannstr. 6,13357,0
+1102141,BWB Hauptpumpwerk Berlin V Holzmarktstr.,Verbrennungsmotorenanlage. Dieselkreisel III,Holzmarktstr. 31,10243,0
+1102201,BSR / MHKW,Müllheizkraftwerk Ruhleben,Freiheit 24 - 25,13597,1
+1102213,BSR / Deponiefackel Dieders. Weg,BSR Deponiefackel Dieder.,Diedersdorfer Weg 1,12277,0
+1102401,Sankt Joseph Krankenhaus Berliner Energieagentur GmbH -Dienstleistler,Verbrennungsmotorenanlage,Wüsthoffstraße 15,12101,0
+1103305,GASAG Contracting GmbH HW Asnieres Str. Quartier Maselake,GASAG HW Asnieres str    BHKW,Asnieresstr. 10,13587,0
+1103306,Martin Luther KH alt GASAG Wärmeservice GmbH BHKW Caspar -Theyß-Str.,GASAG BHKW Caspar-Theß-Str.,Caspar-Thyeß Str. 27-31,14193,0
+1103308,GASAG Contracting GmbH  BHKW Mariendorfer Damm 1-3,GASAG BHKW     Mariendorfer Damm,Mariendorfer Damm 1-3,12099,0
+1103309,GASAG Contracting GmbH BHKW O2 Platz,Verbrennungsmotorenanlage,Mercedes Platz 1,10243,0
+1104501,Deutsche Rentenversicherung  Bund Feuerungsanlage,Heizkraftwerk Berlin (Deutsche Rentenversicherung Bund),Seesener Str. 62-64,10709,0
+1105507,Vattenfall  Europe Wärme BHKW Blankenburger Str.,Heizwerk Blankenburger Strasse,Blankenburger Str. 129/141,13156,0
+1105510,Vattenfall Europe Wärme BHKW Adlershof,Blockheizkraftwerk Adlershof,Glienicker Weg 95,12489,0
+1105515,Vattenfall Europe Wärme  BHKW Altglienicke,Heizkraftwerk Altglienicke,Nelkenweg 100,12524,0
+1105521,Vattenfall Europe Wärme  BHKW Wannsee Helmholtz-Zentrum,Blockheizkraftwerk Wannsee,Glienicker Str. 100,14109,0
+1105522,Vattenfall Europe Wärme  BHKW Waldstr.,Blockheizkraftwerk Waldstraße,Waldstrasse 98a,13403,0
+1105608,Vattenfall Europe Wärme HKW Wilmersdorf,Heizkraftwerk Wilmersdorf,Forckenbeckstr. 3-6,14199,1
+1107501,BSR / Deponiegasfackel Lübars,Deponiefackel BSR,Quickborner Str./alte Fasanierie 100,13439,0
+1114001,BERLINER FLUGHAFEN-GESELLSCHAFT mbH Flughafen Tegel-Heizwerk,Heizwerk Flughafen,Kurt-Schumacher-Damm 220-224,13405,0
+1120402,G+D Gesellschaft für Energiemanagement mbH BHKW Romanshorner Weg,Verbrennungsmotoranlage Blockheizkraftwerk,Romanshorner Weg 92,13407,0
+1120403,GETEC Contracting GmbH BHKW Chausseestr.95,Verbrennungsmotorenanlage,Chausseestr. 95-97,10115,0
+1150106,BTB KWK Sportforum Weißensee,BTB Heizkraftwerk im Sportforum Berlin,Fritz-Lesch-Str. 29a,13053,0
+1150107,BTB Tankredstr.,BTB Tankredstr. BHKW,Tankredstr. 13-15,12105,0
+1150109,BTB KWK auf dem Gelände  NK Spezialpapier NK GmbH,BTB NK SpezialpapierGmbH,Woermannkehre 2,12389,0
+1150801,Solon BHKW,SOLON Se BTB BHKW Albert-Einstein Str,Albert- Einstein-Str. 23,12489,0
+1196502,Deutscher Bundestag Verwaltung ZT3 Paul-Löbe Haus. Jakob-Kaiser-Haus und Reichstagsgebäude,Blockheizkraftwerk Paul-Löbe-Haus,Platz der Republik 1,11011,0
+1300201,Daimler AG Mercedes Benz Werk Marienfelde,Heizwerk B11 Daimler AG,Daimlerstr. 143,12277,0
+1401001,Evangelisches Johannersstift SbR,Verbrennungsmotorenanlage,Schönwalder Allee 26,13587,0
+1402811,Vattenfall Europe Wärme Velodrom Rad-und Schwimmsport-Halle,BHKW Velodrom Rad-und Schwimmsport-Halle,Fritz-Riedel-Str. 53,10407,0
+1510001,Freiberger Lebensmittel GmbH & Co. Produktions- und Vertriebs KG,Herstellung von Tiefkühlkost,Zerpenschleuer Ring 1,13439,0
+1704501,Harry-Brot GmbH,Herstellen von Backwaren,Wolfener Str. 14,12681,0
+1750002,innogy SE HW Düppel 1,RWE Biomasse- Heizwerk Lissabonallee,Lissabonallee 10,14163,0
+1750003,Erzeugungsanlage Glienickerstr,BHKW Glienicker Str.,Glienicker Strasse 1,12557,0
+1750004,Erzeugungsanlagen Karlstr,BHKW Karlstrasse,Karlsstrasse 11c,12557,0
+1750006,Innogy SE Energiedienstleistungen B2B,Innogy SE BHKW Buckower Damm,Buckower Damm 288,12349,0
+1800501,fm-one Management Services GmbH alt IPW Gebäudemanagement GmbH Innovationspark Wuhlheide,BHKW Innovationspark Wuhlheide,Köpenicker Str. 325,12555,0
+1900101,JACOBS DOUWE EBERTS DE GmbH Betriebsstätte Werk Berlin Berlin ab 5/2015,Mondelez Kaffeeeröstanlage,Nobelstr. 1,12057,0
+2005301,KME Brass Germany GmbH,KME Brass Dampfkesselanlagen,Miraustr. 10-14,13509,0
+2221501,NEUKÖLLN SPEZIALPAPIER NK GmbH & Co. KG alt Melitta Haushaltsprodukte GmbH & Co KG,BTB Gasturbinenanlage in der Papierfabrik Melitta,Woermannkehre 2,12359,0
+2500401,Philip Morris Manufacturing GmbH,Feuerungsanlage zur Dampferzeugung,Neuköllnische Allee 80,12057,0
+2511001,PASM Power and Air Condition Solution Management GmbH BHKW Winterfeldtstrasse,2 BHKW Wintereldtstrasse,Winterfeldtstrasse 21,10781,0
+2760001,innogy SE Energiedienstleistungen B2B,RWE Bioerdgas BHKW Gross-Ziethenerstr.,Groß-Ziethener Strasse 94,12309,0
+2901501,Tierpark Berlin-Friedrichsfelde,Heizzentrale Tierpark Berlin-Friedrichsfelde,Am Tierpark 125,10319,0
+3055501,URBANA Energiedienste GmbH BHKW Berlin,BHKW URBANA,Salchendorfer Weg 4,13583,0
+3150001,Vivantes Klinikum Spandau GmbH BHKW,Blockheizkraftwerk Spandau,Neue Bergstrasse 6,13585,0
+1105508,Vattenfall Europe Wärme BHKW Scharnhorststr.,Heizwerk Scharnhorststrasse,Scharnhorststr. 3a,10115,1
+1105502,Vattenfall Europe Wärme HKW Marzahn,Heizkraftwerk Marzahn,Rhinstr. 70,12681,1
+1105603,Vattenfall Europe Wärme HKW Charlottenburg,Heizkraftwerk Charlottenburg,Am Spreebord 5,10589,1
+1500201,DEK Deutsche Extrakt Kaffee GmbH,DEK Feuerungsanlage,Cafeastraße 1,12347,0
+2802601,Bayer  AG nur GFA,Bayer Schering Berlin Energiezentrale,Müllerstr. 170-178,13353,0
