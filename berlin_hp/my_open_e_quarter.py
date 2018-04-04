@@ -276,7 +276,6 @@ def oeq():
     sn_data = pd.read_csv(os.path.join(cfg.get('paths', 'data_berlin'),
                                        'data_by_blocktype.csv'), ';')
 
-    pd.DataFrame(data['TYPKLAR'].unique()).to_excel('/home/uwe/test1.xlsx')
     data = data.merge(sn_data, on='TYPKLAR', how='left')
     data.set_index('alkis_id', drop=True, inplace=True)
 
