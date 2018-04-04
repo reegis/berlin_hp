@@ -1,19 +1,31 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 23 14:35:28 2016
 
-@author: uwe
+"""Aggregating feed-in time series for the model regions.
+
+Copyright (c) 2016-2018 Uwe Krien <uwe.krien@rl-institut.de>
+
+SPDX-License-Identifier: GPL-3.0-or-later
 """
+__copyright__ = "Uwe Krien <uwe.krien@rl-institut.de>"
+__license__ = "GPLv3"
+
+# Python libraries
 import logging
 import datetime
 import os
-import oemof.tools.logger as logger
-import Open_eQuarterPy.building_evaluation as be
-from reegis_tools import config as cfg
+import warnings
+
+# External libraries
 import pandas as pd
 import geopandas as gpd
+
+# oemof packages
+import oemof.tools.logger as logger
+
+# internal modules
+import Open_eQuarterPy.building_evaluation as be
+from reegis_tools import config as cfg
 import reegis_tools.geometries
-import warnings
 import berlin_hp.download as download
 
 

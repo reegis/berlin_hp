@@ -1,18 +1,34 @@
+# -*- coding: utf-8 -*-
+
+"""Aggregating feed-in time series for the model regions.
+
+Copyright (c) 2016-2018 Uwe Krien <uwe.krien@rl-institut.de>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
+__copyright__ = "Uwe Krien <uwe.krien@rl-institut.de>"
+__license__ = "GPLv3"
+
+# Python libraries
 import logging
-import pandas as pd
 import os
 import datetime
 
+# External libraries
+import pandas as pd
 from workalendar.europe import Germany
+
+# oemof packages
+import oemof.tools.logger as logger
 import demandlib.bdew as bdew
 
-import oemof.tools.logger as logger
-
+# internal modules
 from reegis_tools import config as cfg
 import reegis_tools.energy_balance
 import reegis_tools.coastdat
 import reegis_tools.energy_balance
 import reegis_tools.geometries
+import berlin_hp.my_open_e_quarter
 
 
 def load_heat_data(filename=None, method='oeq', fill_frac_column=True):
