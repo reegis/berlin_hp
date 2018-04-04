@@ -13,7 +13,6 @@ import oemof.tools.logger as logger
 
 from berlin_hp import feedin
 import berlin_hp.heat as heat
-import berlin_hp.powerplants as powerplants
 import berlin_hp.scenario_tools as scenario_tools
 
 
@@ -38,9 +37,6 @@ def create_scenario(year):
     table_collection['powerplants'] = scenario_powerplants(
         year, table_collection['time_series'])
 
-    # logging.info('BASIC SCENARIO - CHP PLANTS')
-    # table_collection = chp_scenario(table_collection, year)
-
     logging.info('BASIC SCENARIO - DECENTRALISED HEAT')
     table_collection['decentralised_heating'] = decentralised_heating()
 
@@ -56,13 +52,6 @@ def create_scenario(year):
 def time_logger(txt, ref):
     msg = "{0}.Elapsed time: {1}".format(txt, datetime.datetime.now() - ref)
     logging.info(msg)
-
-
-def scenario_powerplants_small(year):
-    pp = powerplants.allocate_powerplants(year).transpose()
-
-    pp.columns = pd.MultiIndex.from_product([['BE'], pp.columns])
-    return pp
 
 
 def scenario_powerplants(year, ts):
