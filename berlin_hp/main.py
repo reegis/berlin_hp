@@ -40,7 +40,12 @@ def main(year):
                         str(year))
 
     logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
-    sc.load_excel(os.path.join(path, '_'.join([sc.name, str(year)]) + '.xls'))
+    excel_fn = os.path.join(path, '_'.join([sc.name, str(year)]) + '.xls')
+
+    if os.path.isfile(excel_fn):
+        berlin_hp.basic_scenario.create_basic_scenario(year)
+
+    sc.load_excel(excel_fn)
 
     logging.info("Add nodes to the EnergySystem: {0}".format(stopwatch()))
     sc.add_nodes2solph()
