@@ -42,7 +42,7 @@ def main(year):
     logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
     excel_fn = os.path.join(path, '_'.join([sc.name, str(year)]) + '.xls')
 
-    if os.path.isfile(excel_fn):
+    if not os.path.isfile(excel_fn):
         berlin_hp.basic_scenario.create_basic_scenario(year)
 
     sc.load_excel(excel_fn)
