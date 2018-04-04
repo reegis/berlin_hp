@@ -35,8 +35,10 @@ def load_heat_data(filename=None, method='oeq', fill_frac_column=True):
     if method == 'oeq':
         if filename is None:
             filename = cfg.get('oeq', 'results')
-        data = pd.read_hdf(os.path.join(cfg.get('paths', 'oeq'), filename),
-                           method)
+        fn = os.path.join(cfg.get('paths', 'oeq'), filename)
+        if not os.path.isfile(fn):
+            berlin_hp.my_open_e_quarter.oeq()
+        data = pd.read_hdf(fn, method)
 
     elif method == 'wt':
         if filename is None:
