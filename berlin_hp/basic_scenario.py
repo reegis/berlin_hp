@@ -223,7 +223,6 @@ def scenario_elec_demand(year, time_series):
         cfg.get('paths', 'electricity'),
         cfg.get('electricity', 'file_csv')).format(year=year)
     elec_demand = pd.read_csv(fn, index_col=[0], parse_dates=True)
-    elec_demand['usage'] = elec_demand.usage.interpolate()
     time_series['electricity', 'demand'] = elec_demand.usage.values * 1000
     return time_series
 
