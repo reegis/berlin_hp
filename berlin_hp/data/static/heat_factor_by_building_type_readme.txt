@@ -1,0 +1,1 @@
+Woher stammt die Übersetzung Nummer zu Text???

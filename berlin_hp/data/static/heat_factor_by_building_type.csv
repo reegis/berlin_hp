@@ -1,0 +1,182 @@
+building_function,gebaeude_1,heat_factor,ghd,mfh
+1000,Wohngebäude,1,0,1
+1010,Wohnhaus,1,0,1
+1020,Wohnheim,1,0,1
+1021,Kinderheim,1,0,1
+1022,Seniorenheim,1,1,0
+1023,Schwesternwohnheim,1,0,1
+1024,"Studenten-, Schülerwohnheim",1,0,1
+1025,Schullandheim,1,1,0
+1100,Gemischt genutztes Gebäude mit Wohnen,1,0.5,0.5
+1110,Wohngebäude mit Gemeinbedarf,1,0.5,0.5
+1120,Wohngebäude mit Handel und Dienstleistungen,1,0.5,0.5
+1130,Wohngebäude mit Gewerbe und Industrie,1,0.5,0.5
+1210,Land- und forstwirtschaftliches Wohngebäude,1,1,0
+1220,Land- und forstwirtschaftliches Wohn- und Betriebsgebäude,1,1,0
+1223,Forsthaus,1,1,0
+1310,Gebäude zur Freizeitgestaltung,1,1,0
+1311,Ferienhaus,0,0,0
+1312,Wochenendhaus,0,0,0
+1313,Gartenhaus,0,0,0
+2000,Gebäude für Wirtschaft oder Gewerbe,1,1,0
+2010,Gebäude für Handel und Dienstleistungen,1,1,0
+2020,Bürogebäude,1,1,0
+2030,Kreditinstitut,1,1,0
+2040,Versicherung,1,1,0
+2050,Geschäftsgebäude,1,1,0
+2051,Kaufhaus,1,1,0
+2052,Einkaufszentrum,1,1,0
+2053,Markthalle,1,1,0
+2054,Laden,1,1,0
+2055,Kiosk,1,1,0
+2060,Messehalle,1,1,0
+2070,Gebäude für Beherbergung,1,1,0
+2071,"Hotel, Motel, Pension",1,1,0
+2072,Jugendherberge,1,1,0
+2074,Campingplatzgebäude,0,0,0
+2080,Gebäude für Bewirtung,1,1,0
+2081,"Gaststätte, Restaurant",1,1,0
+2083,Kantine,1,1,0
+2090,Freizeit- und Vergnügungsstätte,1,1,0
+2091,Festsaal,1,1,0
+2092,Kino,1,1,0
+2093,"Kegel-, Bowlinghalle",1,1,0
+2094,Spielkasino,1,1,0
+2100,Gebäude für Gewerbe und Industrie,1,1,0
+2111,Fabrik,1,1,0
+2120,Werkstatt,0,0,0
+2130,Tankstelle,1,1,0
+2140,Gebäude für Vorratshaltung,1,1,0
+2141,Kühlhaus,0,0,0
+2142,Speichergebäude,0,0,0
+2143,"Lagerhalle, Lagerschuppen, Lagerhaus",0,0,0
+2150,Speditionsgebäude,1,1,0
+2160,Gebäude für Forschungszwecke,1,1,0
+2180,Gebäude für betriebliche Sozialeinrichtung,1,1,0
+2200,Sonstiges Gebäude für Gewerbe und Industrie,1,1,0
+2211,Windmühle,0,0,0
+2310,Gebäude für Handel und Dienstleistung mit Wohnen,1,0.5,0.5
+2320,Gebäude für Gewerbe und Industrie mit Wohnen,1,0.5,0.5
+2400,Betriebsgebäude zu Verkehrsanlagen (allgemein),1,1,0
+2410,Betriebsgebäude für Straßenverkehr,1,1,0
+2411,Straßenmeisterei,1,1,0
+2412,Wartehalle,1,1,0
+2420,Betriebsgebäude für Schienenverkehr,1,1,0
+2421,Bahnwärterhaus,1,1,0
+2422,"Lokschuppen, Wagenhalle",0,0,0
+2423,"Stellwerk, Blockstelle",1,1,0
+2424,Betriebsgebäude des Güterbahnhofs,1,1,0
+2430,Betriebsgebäude für Flugverkehr,1,1,0
+2431,Flugzeughalle,1,1,0
+2440,Betriebsgebäude für Schiffsverkehr,0,0,0
+2441,Werft (Halle),1,1,0
+2443,Betriebsgebäude zur Schleuse,0,0,0
+2444,Bootshaus,1,1,0
+2460,Gebäude zum Parken,0,0,0
+2461,Parkhaus,0,0,0
+2462,Parkdeck,0,0,0
+2463,Garage,0,0,0
+2464,Fahrzeughalle,0,0,0
+2500,Gebäude zur Versorgung,1,1,0
+2510,Gebäude zur Wasserversorgung,1,1,0
+2511,Wasserwerk,0,0,0
+2512,Pumpstation,1,1,0
+2513,Wasserbehälter,1,1,0
+2520,Gebäude zur Elektrizitätsversorgung,1,1,0
+2521,Elektrizitätswerk,1,1,0
+2522,Umspannwerk,1,1,0
+2523,Umformer,1,1,0
+2540,Gebäude für Fernmeldewesen,1,1,0
+2560,Gebäude an unterirdischen Leitungen,0,0,0
+2571,Gaswerk,1,1,0
+2580,Heizwerk,1,1,0
+2591,Pumpwerk (nicht für Wasserversorgung),0,0,0
+2600,Gebäude zur Entsorgung,1,1,0
+2610,Gebäude zur Abwasserbeseitigung,1,1,0
+2611,Gebäude der Kläranlage,1,1,0
+2612,Toilette,0,0,0
+2620,Gebäude zur Abfallbehandlung,1,1,0
+2621,Müllbunker,0,0,0
+2622,Gebäude zur Müllverbrennung,1,1,0
+2700,Gebäude für Land- und Forstwirtschaft,1,1,0
+2720,Land- und forstwirtschaftliches Betriebsgebäude,1,1,0
+2721,Scheune,1,1,0
+2723,Schuppen,0,0,0
+2724,Stall,1,1,0
+2726,Scheune und Stall,0,0,0
+2727,Stall für Tiergroßhaltung,1,1,0
+2741,Treibhaus,1,1,0
+2742,,1,1,0
+3000,Gebäude für öffentliche Zwecke,1,1,0
+3010,Verwaltungsgebäude,1,1,0
+3011,Parlament,1,1,0
+3012,Rathaus,1,1,0
+3013,Post,1,1,0
+3014,Zollamt,1,1,0
+3015,Gericht,1,1,0
+3016,"Botschaft, Konsulat",1,1,0
+3020,Gebäude für Bildung und Forschung,1,1,0
+3021,Allgemein bildende Schule,1,1,0
+3022,Berufsbildende Schule,1,1,0
+3023,"Hochschulgebäude (Fachhochschule, Universität)",1,1,0
+3024,Forschungsinstitut,1,1,0
+3030,Gebäude für kulturelle Zwecke,1,1,0
+3031,Schloss,1,1,0
+3032,"Theater, Oper",1,1,0
+3033,Konzertgebäude,1,1,0
+3034,Museum,1,1,0
+3035,"Rundfunk, Fernsehen",1,1,0
+3036,Veranstaltungsgebäude,1,1,0
+3037,"Bibliothek, Bücherei",1,1,0
+3040,Gebäude fuer religiöse Zwecke,1,1,0
+3041,Kirche,1,1,0
+3042,Synagoge,1,1,0
+3043,Kapelle,1,1,0
+3044,Gemeindehaus,1,1,0
+3045,Gotteshaus,1,1,0
+3046,,1,1,0
+3050,Gebäude für Gesundheitswesen,1,1,0
+3051,Krankenhaus,1,1,0
+3052,"Heilanstalt, Pflegeanstalt, Pflegestation",1,1,0
+3060,Gebäude für soziale Zwecke,1,1,0
+3061,Jugendfreizeitheim,1,1,0
+3062,"Freizeit-, Vereinsheim, Dorfgemeinschafts-, Bürgerhaus",1,1,0
+3063,Seniorenfreizeitstätte,1,1,0
+3064,Obdachlosenheim,1,1,0
+3065,"Kinderkrippe, Kindergarten, Kindertagesstätte",1,1,0
+3070,Gebäude für Sicherheit und Ordnung,1,1,0
+3071,Polizei,1,1,0
+3072,Feuerwehr,1,1,0
+3073,Kaserne,1,1,0
+3074,Schutzbunker,1,1,0
+3075,Justizvollzugsanstalt,1,1,0
+3080,Friedhofsgebäude,1,1,0
+3081,Trauerhalle,1,1,0
+3082,Krematorium,1,1,0
+3090,Empfangsgebäude,1,1,0
+3091,Bahnhofsgebäude,1,1,0
+3092,Flughafengebäude,1,1,0
+3094,Gebäude zum U-Bahnhof,1,1,0
+3095,Gebäude zum S-Bahnhof,1,1,0
+3097,Gebäude zum Busbahnhof,1,1,0
+3100,Gebäude für öffentliche Zwecke mit Wohnen,1,1,0
+3200,Gebäude für Erholungszwecke,1,1,0
+3210,Gebäude für Sportzwecke,1,1,0
+3211,"Sport-, Turnhalle",1,1,0
+3212,Gebäude zum Sportplatz,1,1,0
+3220,Badegebäude,1,1,0
+3221,Hallenbad,1,1,0
+3222,Gebäude im Freibad,1,1,0
+3240,Gebäude für Kurbetrieb,1,1,0
+3241,Badegebäude für medizinische Zwecke,1,1,0
+3260,Gebäude im Zoo,1,1,0
+3261,Empfangsgebäude des Zoos,1,1,0
+3262,"Aquarium, Terrarium, Voliere",1,1,0
+3263,Tierschauhaus,1,1,0
+3264,Stall im Zoo,1,1,0
+3270,Gebäude im botanischen Garten,1,1,0
+3271,Empfangsgebäude des botanischen Gartens,1,1,0
+3272,Gewächshaus (Botanik),1,1,0
+3273,Pflanzenschauhaus,1,1,0
+3281,Schutzhütte,0,0,0
+9998,Nach Quellenlage nicht zu spezifizieren,1,1,0
