@@ -51,7 +51,7 @@ def main(year):
     sc.add_nodes2solph()
 
     # Save energySystem to '.graphml' file.
-    sc.plot_nodes(filename='/home/uwe/berlin_hp',
+    sc.plot_nodes(filename=os.path.join(path, 'berlin_hp'),
                   remove_nodes_with_substrings=['bus_cs'])
 
     logging.info("Create the concrete model: {0}".format(stopwatch()))
