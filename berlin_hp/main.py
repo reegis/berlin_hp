@@ -46,6 +46,7 @@ def main(year):
         berlin_hp.basic_scenario.create_basic_scenario(year)
 
     sc.load_excel(excel_fn)
+    sc.check_table('time_series')
 
     logging.info("Add nodes to the EnergySystem: {0}".format(stopwatch()))
     sc.add_nodes2solph()

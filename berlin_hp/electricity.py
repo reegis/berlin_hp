@@ -30,6 +30,7 @@ def fill_data_gaps(df):
     for col in df.columns:
         df[col] = df[col].fillna(df[col].shift(7 * 4 * 24))
         df[col] = df[col].interpolate()
+        df[col] = df[col].fillna(method='bfill')
     return df
 
 
@@ -41,7 +42,6 @@ def convert_net_xml2df(year, filename, hourly=True):
     attributes = ['usage', 'generation', 'feed', 'key-acount-usage']
     df = pd.DataFrame(columns=attributes)
     df_temp = pd.DataFrame(columns=attributes)
-    logging.info('start')
     for distr_ele in elem.find('district'):
         for f in distr_ele.getchildren():
             value_list = []
@@ -65,6 +65,7 @@ def convert_net_xml2df(year, filename, hourly=True):
     # resample to hourly values if hourly is set to True
     if hourly is True:
         df = df.resample('H').mean()
+        df = df.interpolate()
 
     return df
 
@@ -91,5 +92,15 @@ def get_electricity_demand(year, hourly=True):
 
 if __name__ == "__main__":
     logger.define_logging(file_level=logging.INFO)
+    c = []
     for y in [2012, 2013, 2014, 2015, 2016]:
-        convert_net_xml2df(y)
+        d = get_electricity_demand(y)
+        if d.isnull().values.any():
+            for column in d.columns:
+                if d[column].isnull().any():
+                        c.append(column)
+            print(d.loc[d.usage.isnull()])
+        if len(c) < 1:
+            print("Everything is fine.")
+        else:
+            print(c)
