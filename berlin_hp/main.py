@@ -68,7 +68,7 @@ def main(year):
 
 
 if __name__ == "__main__":
-    logger.define_logging()
+    logger.define_logging(file_level=logging.INFO)
     main(2014)
     exit(0)
     for y in [2014]:

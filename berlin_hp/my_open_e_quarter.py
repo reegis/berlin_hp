@@ -67,7 +67,7 @@ def process_alkis_buildings(shapefile_out, table, remove_non_heated=True):
             cfg.get('oeq', 'alkis_heat_factor_table'))
         heat_factor = pd.read_csv(filename_heat_factor, index_col=[0])
         non_heated = list(heat_factor.loc[heat_factor.heat_factor == 0].index)
-        geo_table = geo_table[geo_table['Gebaeudefu'] not in non_heated]
+        geo_table = geo_table[~geo_table['Gebaeudefu'].isin(non_heated)]
 
     logging.info("Length of data set after removing parts: {0}".format(
         len(geo_table)))
