@@ -33,13 +33,7 @@ def fill_data_gaps(df):
     return df
 
 
-def convert_net_xml2df(year, hourly=True):
-    filename = os.path.join(
-        cfg.get('paths', 'electricity'),
-        cfg.get('electricity', 'file_xml').format(year=year))
-    if not os.path.isfile(filename):
-        logging.info("Download Berlin grid data for {0} as xml.".format(year))
-        berlin_hp.download.get_berlin_net_data(year)
+def convert_net_xml2df(year, filename, hourly=True):
     tree = ElementTree.parse(filename)
     elem = tree.getroot()
     logging.info("Convert xml-file to csv-file for {0}".format(year))
@@ -72,11 +66,27 @@ def convert_net_xml2df(year, hourly=True):
     if hourly is True:
         df = df.resample('H').mean()
 
-    # dump the data as csv-file
-    outfile = os.path.join(
+    return df
+
+
+def get_electricity_demand(year, hourly=True):
+    xml_filename = os.path.join(
+        cfg.get('paths', 'electricity'),
+        cfg.get('electricity', 'file_xml').format(year=year))
+
+    csv_filename = os.path.join(
         cfg.get('paths', 'electricity'),
         cfg.get('electricity', 'file_csv')).format(year=year)
-    df.to_csv(outfile)
+
+    if not os.path.isfile(xml_filename):
+        logging.info("Download Berlin grid data for {0} as xml.".format(year))
+        xml_filename = berlin_hp.download.get_berlin_net_data(year)
+
+    if not os.path.isfile(csv_filename):
+        df = convert_net_xml2df(year, xml_filename, hourly=hourly)
+        df.to_csv(csv_filename)
+
+    return pd.read_csv(csv_filename, index_col=[0], parse_dates=True)
 
 
 if __name__ == "__main__":

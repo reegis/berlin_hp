@@ -13,6 +13,7 @@ import oemof.tools.logger as logger
 
 from berlin_hp import feedin
 import berlin_hp.heat as heat
+import berlin_hp.electricity
 import berlin_hp.scenario_tools as scenario_tools
 
 
@@ -208,10 +209,7 @@ def scenario_heat_profiles(year, ts):
 
 
 def scenario_elec_demand(year, time_series):
-    fn = os.path.join(
-        cfg.get('paths', 'electricity'),
-        cfg.get('electricity', 'file_csv')).format(year=year)
-    elec_demand = pd.read_csv(fn, index_col=[0], parse_dates=True)
+    elec_demand = berlin_hp.electricity.get_electricity_demand(year)
     time_series['electricity', 'demand'] = elec_demand.usage.values * 1000
     return time_series
 

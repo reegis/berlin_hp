@@ -223,6 +223,8 @@ def get_berlin_net_data(year, district=None):
         cfg.get('electricity', 'file_xml').format(year=year))
     get_xml_from_server(url, xml, filename)
 
+    return filename
+
 
 if __name__ == "__main__":
     logger.define_logging(file_level=logging.INFO)
