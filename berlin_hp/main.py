@@ -62,7 +62,7 @@ def main(year):
     sc.solve()
 
     logging.info("Solved. Dump results: {0}".format(stopwatch()))
-    sc.dump_es(os.path.join(path, 'berlin_hp.reegis'))
+    sc.dump_es(os.path.join(path, 'berlin_hp.esys'))
 
     logging.info("All done. de21 finished without errors: {0}".format(
         stopwatch()))
