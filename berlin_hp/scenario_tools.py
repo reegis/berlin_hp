@@ -23,26 +23,29 @@ class Scenario(reegis_tools.scenario_tools.Scenario):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def create_nodes(self):
-        return nodes_from_table_collection(self.table_collection)
+    def create_nodes(self, nodes=None):
+        return nodes_from_table_collection(self.table_collection, nodes)
 
 
-def nodes_from_table_collection(table_collection):
+def nodes_from_table_collection(table_collection, nodes=None):
     # Create  a special dictionary that will raise an error if a key is
     # updated. This avoids the
-    nodes = reegis_tools.scenario_tools.NodeDict()
+    if nodes is None:
+        nodes = reegis_tools.scenario_tools.NodeDict()
 
     # Global commodity sources
     cs = table_collection['commodity_sources']['DE']
     for fuel in cs.columns:
         bus_label = 'bus_cs_{0}'.format(fuel.replace(' ', '_'))
-        nodes[bus_label] = solph.Bus(label=bus_label)
+        if bus_label not in nodes:
+            nodes[bus_label] = solph.Bus(label=bus_label)
 
         cs_label = 'source_cs_{0}'.format(fuel.replace(' ', '_'))
-        nodes[cs_label] = solph.Source(
-            label=cs_label, outputs={nodes[bus_label]: solph.Flow(
-                variable_costs=cs.loc['costs', fuel],
-                emission=cs.loc['emission', fuel])})
+        if cs_label not in nodes:
+            nodes[cs_label] = solph.Source(
+                label=cs_label, outputs={nodes[bus_label]: solph.Flow(
+                    variable_costs=cs.loc['costs', fuel],
+                    emission=cs.loc['emission', fuel])})
 
     # Create additional bus for electricity as source. This bus can be
     # connected to the electricity bus for future scenarios.
@@ -55,6 +58,7 @@ def nodes_from_table_collection(table_collection):
     # Local volatile electricity sources
     vs = table_collection['volatile_source']
     ts = table_collection['time_series']
+    feedin = None
     for vs_type in vs['BE'].columns:
         vs_label = 'source_{0}_{1}'.format(vs_type, 'BE')
         capacity = vs.loc['capacity', ('BE', vs_type)]
@@ -86,12 +90,13 @@ def nodes_from_table_collection(table_collection):
             raise ValueError(msg.format(bus_label, src))
 
         # Create heating bus as Bus
-        heat_bus_label = 'bus_dectrl_heating_{0}'.format(
+        heat_bus_label = 'bus_dectrl_heating_BE_{0}'.format(
             fuel.replace(' ', '_'))
         nodes[heat_bus_label] = solph.Bus(label=heat_bus_label)
 
         # Create heating system as Transformer
-        trsf_label = 'trsf_dectrl_heating_{0}'.format(fuel.replace(' ', '_'))
+        trsf_label = 'trsf_dectrl_heating_BE_{0}'.format(
+            fuel.replace(' ', '_'))
         efficiency = float(dh.loc['efficiency', ('BE_demand', fuel)])
         nodes[trsf_label] = solph.Transformer(
             label=trsf_label,
@@ -100,7 +105,7 @@ def nodes_from_table_collection(table_collection):
             conversion_factors={nodes[heat_bus_label]: efficiency})
 
         # Create demand as Sink
-        d_heat_demand_label = 'demand_dectrl_heating_{0}'.format(
+        d_heat_demand_label = 'demand_dectrl_heating_BE_{0}'.format(
             fuel.replace(' ', '_'))
         nodes[d_heat_demand_label] = solph.Sink(
                 label=d_heat_demand_label,
@@ -250,13 +255,15 @@ def nodes_from_table_collection(table_collection):
     bus_keys = [key for key in nodes.keys() if 'bus' in key]
     for key in bus_keys:
         excess_label = 'excess_{0}'.format(key)
-        nodes[excess_label] = solph.Sink(
-            label=excess_label,
-            inputs={nodes[key]: solph.Flow()})
+        if excess_label not in nodes:
+            nodes[excess_label] = solph.Sink(
+                label=excess_label,
+                inputs={nodes[key]: solph.Flow()})
         shortage_label = 'shortage_{0}'.format(key)
-        nodes[shortage_label] = solph.Source(
-            label=shortage_label,
-            outputs={nodes[key]: solph.Flow(variable_costs=9000)})
+        if shortage_label not in nodes:
+            nodes[shortage_label] = solph.Source(
+                label=shortage_label,
+                outputs={nodes[key]: solph.Flow(variable_costs=9000)})
     return nodes
 
 
