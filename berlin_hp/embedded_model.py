@@ -202,10 +202,12 @@ def create_reduced_de21_scenario(year):
         axis=1)
     csd = de.table_collection['transformer'].loc[
         rows, region]
-    pd.concat([asd, bsd, csd]).to_excel('/home/uwe/cf2.xls')
+    pd.concat([asd, bsd, csd]).to_excel(os.path.join(
+        cfg.get('paths', 'messages'), 'summery_embedded_powerplants.xls'))
     ct = pd.concat([ct, sub])
 
-    ct.to_excel('/home/uwe/ct.xls')
+    ct.to_excel(os.path.join(
+        cfg.get('paths', 'messages'), 'summery_embedded_model.xls'))
 
     sce = reegis_tools.scenario_tools.Scenario(
         table_collection=de.table_collection, name='de_without_BE', year=2014)
@@ -247,7 +249,7 @@ def main(year, de21_csv_path):
     sc_be.solve()
 
     logging.info("Solved. Dump results: {0}".format(stopwatch()))
-    sc_be.dump_es(os.path.join(path, 'berlin_hp_de21.esys'))
+    sc_be.dump_es(os.path.join(scpath, 'berlin_hp_de21.esys'))
 
     logging.info("All done. de21 finished without errors: {0}".format(
         stopwatch()))
@@ -255,6 +257,6 @@ def main(year, de21_csv_path):
 
 if __name__ == "__main__":
     logger.define_logging(file_level=logging.INFO)
-    y = 2014
-    path = create_reduced_de21_scenario(y)
-    main(y, path)
+    yr = 2014
+    sc_path = create_reduced_de21_scenario(yr)
+    main(yr, sc_path)
