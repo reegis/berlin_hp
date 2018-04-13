@@ -243,10 +243,14 @@ def connect_electricity_buses(bus1, bus2, nodes):
 def main(year, de21_csv_path):
     stopwatch()
 
+    # Load data of the de21 model
     logging.info("Read de21 scenario from csv collection: {0}".format(
         stopwatch()))
     sc_de = de21.Scenario(name='basic', year=year)
     sc_de.load_csv(de21_csv_path)
+    sc_de.check_table('time_series')
+
+    # Create nodes for the de21 model
     nodes_de21 = sc_de.create_nodes()
 
     sc_be = berlin_hp.Scenario(name='berlin_basic', year=year)
@@ -254,25 +258,30 @@ def main(year, de21_csv_path):
     scpath = os.path.join(cfg.get('paths', 'scenario'), 'berlin_basic',
                           str(year))
 
+    # Load data of the berlin_hp Model
     logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
     excel_fn = os.path.join(scpath, '_'.join([sc_be.name, str(year)]) + '.xls')
-
-    if not os.path.isfile(excel_fn):
-        berlin_hp.basic_scenario.create_basic_scenario(year)
-
     sc_be.load_excel(excel_fn)
     sc_be.check_table('time_series')
+
+    # Create nodes for the berlin_hp model
     nodes = sc_be.create_nodes(nodes_de21)
 
     # Connect de21 and berlin_hp with a transmission line
     nodes = connect_electricity_buses('DE01', 'BE', nodes)
+
+    # Add nodes to the energy system
     sc_be.add_nodes2solph(nodes=nodes)
+
+    # Create model (all constraints)
     logging.info("Create the concrete model: {0}".format(stopwatch()))
     sc_be.create_model()
 
+    # Pass the model to the solver and fetch the results afterwards..
     logging.info("Solve the optimisation model: {0}".format(stopwatch()))
     sc_be.solve()
 
+    # Dump the energy system with the results to disc
     logging.info("Solved. Dump results: {0}".format(stopwatch()))
     sc_be.dump_es(os.path.join(scpath, 'berlin_hp_de21.esys'))
 
