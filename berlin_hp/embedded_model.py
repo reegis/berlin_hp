@@ -19,6 +19,7 @@ import pandas as pd
 
 # oemof packages
 from oemof.tools import logger
+import oemof.solph as solph
 
 # internal modules
 import reegis_tools.config as cfg
@@ -218,6 +219,27 @@ def create_reduced_de21_scenario(year):
     return csv_path
 
 
+def connect_electricity_buses(bus1, bus2, nodes):
+    lines = [(bus1, bus2), (bus2, bus1)]
+    for line in lines:
+        line_label = 'power_line_{0}_{1}'.format(line[0], line[1])
+        bus_label_in = 'bus_elec_{0}'.format(line[0])
+        bus_label_out = 'bus_elec_{0}'.format(line[1])
+        if bus_label_in not in nodes:
+            raise ValueError(
+                "Bus {0} missing for power line from {0} to {1}".format(
+                    bus_label_in, bus_label_out))
+        if bus_label_out not in nodes:
+            raise ValueError(
+                "Bus {0} missing for power line from {0} to {1}".format(
+                    bus_label_out, bus_label_in))
+        nodes[line_label] = solph.Transformer(
+            label=line_label,
+            inputs={nodes[bus_label_in]: solph.Flow()},
+            outputs={nodes[bus_label_out]: solph.Flow()})
+    return nodes
+
+
 def main(year, de21_csv_path):
     stopwatch()
 
@@ -241,6 +263,9 @@ def main(year, de21_csv_path):
     sc_be.load_excel(excel_fn)
     sc_be.check_table('time_series')
     nodes = sc_be.create_nodes(nodes_de21)
+
+    # Connect de21 and berlin_hp with a transmission line
+    nodes = connect_electricity_buses('DE01', 'BE', nodes)
     sc_be.add_nodes2solph(nodes=nodes)
     logging.info("Create the concrete model: {0}".format(stopwatch()))
     sc_be.create_model()
