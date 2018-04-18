@@ -292,5 +292,7 @@ def main(year, de21_csv_path):
 if __name__ == "__main__":
     logger.define_logging(file_level=logging.INFO)
     yr = 2014
+    berlin_hp.main(yr)
+    de21.main(yr)
     sc_path = create_reduced_de21_scenario(yr)
     main(yr, sc_path)
