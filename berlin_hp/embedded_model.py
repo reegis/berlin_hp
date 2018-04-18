@@ -74,7 +74,7 @@ def create_reduced_de21_scenario(year):
     # Demand of all district heating systems
     berlin_district_heating = (
         berlin.table_collection['time_series']['district_heating_demand'])
-    berlin_district_heating = berlin_district_heating.sum(axis=1) / 1000
+    berlin_district_heating = berlin_district_heating.sum(axis=1)
 
     ct.loc['district heating', 'DE01_orig'] = round(
         de.table_collection['time_series'][region, 'district_heating'].sum())
@@ -93,10 +93,10 @@ def create_reduced_de21_scenario(year):
 
     ct.loc['electricity demand', 'DE01_orig'] = round(
         de.table_collection['time_series'][region, 'electrical_load'].sum())
-    ct.loc['electricity demand', 'BE'] = round(berlin_elec_demand.sum()/1000)
+    ct.loc['electricity demand', 'BE'] = round(berlin_elec_demand.sum())
 
     de.table_collection['time_series'][region, 'electrical_load'] -= (
-        berlin_elec_demand/1000)
+        berlin_elec_demand)
 
     ct.loc['electricity demand', 'DE01_new'] = round(
         de.table_collection['time_series'][region, 'electrical_load'].sum())
@@ -115,11 +115,11 @@ def create_reduced_de21_scenario(year):
         ct.loc['decentralised_' + col, 'BE'] = round((
             berlin.table_collection['time_series'].get(
                 ('decentralised_demand', de_be.get(col)),
-                pd.Series([0, 0])) / 1000).sum())
+                pd.Series([0, 0]))).sum())
 
         de.table_collection['time_series']['DE_demand', col] -= (
                 berlin.table_collection['time_series'].get((
-                    'decentralised_demand', de_be.get(col)), 0) / 1000)
+                    'decentralised_demand', de_be.get(col)), 0))
 
         ct.loc['decentralised_' + col, 'DE_new'] = round(
             de.table_collection['time_series']['DE_demand', col].sum())
@@ -130,7 +130,7 @@ def create_reduced_de21_scenario(year):
     for col in dch_berlin:
         ct.loc['decentralised_' + col, 'BE'] = round((
                 berlin.table_collection['time_series'][
-                    'decentralised_demand', col]/1000).sum())
+                    'decentralised_demand', col]).sum())
 
     # Volatile Sources
     vs_berlin = list(berlin.table_collection['volatile_source']['BE'].columns)
