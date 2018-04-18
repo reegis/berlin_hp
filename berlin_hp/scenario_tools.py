@@ -136,6 +136,7 @@ def nodes_from_table_collection(table_collection, nodes=None):
 
     # Prepare the input table for power plants
     pp = table_collection['powerplants']['BE'].copy()
+
     pp = pp.fillna(0)
     pp['capacity_in'] = (pp.capacity_elec + pp.capacity_heat) / pp.efficiency
     pp['eff_cond_elec'] = pp.capacity_elec / pp.capacity_in
@@ -251,14 +252,18 @@ def nodes_from_table_collection(table_collection, nodes=None):
     #         inflow_conversion_factor=params.pump_eff,
     #         outflow_conversion_factor=params.turbine_eff)
 
-    # Add shortage excess to every bus
+    # Add shortage excess to every electricity bus
+    elec_bus_keys = [key for key in nodes.keys() if 'bus_elec' in key]
     bus_keys = [key for key in nodes.keys() if 'bus' in key]
-    for key in bus_keys:
+
+    for key in elec_bus_keys:
         excess_label = 'excess_{0}'.format(key)
         if excess_label not in nodes:
             nodes[excess_label] = solph.Sink(
                 label=excess_label,
                 inputs={nodes[key]: solph.Flow()})
+
+    for key in bus_keys:
         shortage_label = 'shortage_{0}'.format(key)
         if shortage_label not in nodes:
             nodes[shortage_label] = solph.Source(
