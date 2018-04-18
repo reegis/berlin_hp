@@ -248,7 +248,7 @@ def main(year, de21_csv_path):
         stopwatch()))
     sc_de = de21.Scenario(name='basic', year=year)
     sc_de.load_csv(de21_csv_path)
-    sc_de.check_table('time_series')
+    # sc_de.check_table('time_series')
 
     # Create nodes for the de21 model
     nodes_de21 = sc_de.create_nodes()
