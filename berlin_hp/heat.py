@@ -310,7 +310,7 @@ def create_standardised_heat_load_profile(shlp, year):
 
 
 def create_heat_profiles(year):
-    """Create heat_profiles for the basic scenario as time series.
+    """Create heat_profiles for the basic scenario as time series in MW.
 
     - district heating time series for the different district heating systems
     - decentralised heating demand time series for different fuels
@@ -422,7 +422,9 @@ def create_heat_profiles(year):
     del heat_profiles['district_heating_ghd']
     del heat_profiles['district_heating_mfh']
 
-    return heat_profiles
+    # Returns MW
+
+    return heat_profiles.div(1000)
 
 
 if __name__ == "__main__":

@@ -71,6 +71,7 @@ def convert_net_xml2df(year, filename, hourly=True):
 
 
 def get_electricity_demand(year, hourly=True):
+    """Get the electricity demand in MW."""
     xml_filename = os.path.join(
         cfg.get('paths', 'electricity'),
         cfg.get('electricity', 'file_xml').format(year=year))
@@ -87,7 +88,11 @@ def get_electricity_demand(year, hourly=True):
         df = convert_net_xml2df(year, xml_filename, hourly=hourly)
         df.to_csv(csv_filename)
 
-    return pd.read_csv(csv_filename, index_col=[0], parse_dates=True)
+    msg = ("The unit for the electricity demand of the source is kW. Values"
+           "will be divided by 1000 to get MW.")
+    logging.warning(msg)
+
+    return pd.read_csv(csv_filename, index_col=[0], parse_dates=True) / 1000
 
 
 if __name__ == "__main__":
