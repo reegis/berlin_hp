@@ -34,7 +34,7 @@ def stopwatch():
 def main(year):
     stopwatch()
 
-    sc = berlin_hp.Scenario(name='berlin_basic', year=year)
+    sc = berlin_hp.Scenario(name='berlin_basic', year=year, debug=False)
 
     path = os.path.join(cfg.get('paths', 'scenario'), 'berlin_basic',
                         str(year))
