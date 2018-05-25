@@ -14,6 +14,8 @@ __license__ = "GPLv3"
 import os
 import logging
 from datetime import datetime
+import time
+import traceback
 
 import pandas as pd
 
@@ -35,7 +37,28 @@ def stopwatch():
 
 
 def create_reduced_de22_scenario(year):
-    pass
+    de = deflex.Scenario(name='basic', year=2014)
+    de_path = os.path.join(cfg.get('paths', 'scenario'), '{year}',
+                           'csv', 'basic_de22')
+    de.load_csv(de_path.format(year=year))
+    de.check_table('time_series')
+    logging.info('Remove region DE22....')
+    for sheet in de.table_collection.values():
+        if 'DE22' in sheet.columns:
+            del sheet['DE22']
+
+    for i in de.table_collection['transmission'].index:
+        if 'DE22' in i:
+            de.table_collection['transmission'].drop(i, inplace=True)
+
+    name = 'de22_without_BE'
+
+    sce = reegis_tools.scenario_tools.Scenario(
+        table_collection=de.table_collection, name=name, year=year)
+    path = os.path.join(cfg.get('paths', 'scenario'), str(year))
+    sce.to_excel(os.path.join(path, '_'.join([sce.name, str(year)]) + '.xls'))
+    csv_path = os.path.join(path, 'csv', name)
+    sce.to_csv(csv_path)
 
 
 def create_reduced_de21_scenario(year):
@@ -226,12 +249,11 @@ def create_reduced_de21_scenario(year):
     sce = reegis_tools.scenario_tools.Scenario(
         table_collection=de.table_collection,
         name='de21_without_BE',
-        year=yr)
+        year=year)
     path = os.path.join(cfg.get('paths', 'scenario'), str(year))
     sce.to_excel(os.path.join(path, '_'.join([sce.name, str(year)]) + '.xls'))
     csv_path = os.path.join(path, 'csv', 'de21_without_BE')
     sce.to_csv(csv_path)
-    return csv_path
 
 
 def connect_electricity_buses(bus1, bus2, nodes):
@@ -255,16 +277,17 @@ def connect_electricity_buses(bus1, bus2, nodes):
     return nodes
 
 
-def main(year):
+def main(year, rmap):
     stopwatch()
+
     scenario_path = os.path.join(cfg.get('paths', 'scenario'), str(year))
-    de21_scenario_csv = os.path.join(scenario_path, 'csv', 'basic_de21')
+    de21_scenario_csv = os.path.join(scenario_path, 'csv', '{0}_without_BE')
 
     # Load data of the de21 model
     logging.info("Read de21 scenario from csv collection: {0}".format(
         stopwatch()))
     sc_de = deflex.Scenario(name='basic', year=year)
-    sc_de.load_csv(de21_scenario_csv)
+    sc_de.load_csv(de21_scenario_csv.format(rmap))
     sc_de.check_table('time_series')
 
     # Create nodes for the de21 model
@@ -307,8 +330,20 @@ def main(year):
 
 if __name__ == "__main__":
     logger.define_logging(file_level=logging.INFO)
-    yr = 2014
+    # yr = 2014
+    # rmap = de21
     # berlin_hp.main(yr)
     # de21.main(yr)
-    # sc_path = create_reduced_de21_scenario(yr)
-    # main(yr)
+    # create_reduced_de22_scenario(yr)
+    for y in [2014, 2013, 2012]:
+        create_reduced_de21_scenario(y)
+        create_reduced_de22_scenario(y)
+        for my_rmap in ['de21', 'de22']:
+            try:
+                main(y, my_rmap)
+            except Exception as e:
+                logging.error(traceback.format_exc())
+                time.sleep(0.5)
+                logging.error(e)
+                time.sleep(0.5)
+    # main(yr, rmap)
