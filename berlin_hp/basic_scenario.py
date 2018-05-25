@@ -6,6 +6,7 @@ import os
 import reegis_tools.config as cfg
 import reegis_tools.commodity_sources
 import reegis_tools.powerplants
+import reegis_tools.coastdat as coastdat
 
 # import reegis_tools.demand as de21_demand
 
@@ -106,45 +107,7 @@ def scenario_volatile_sources(year):
 
 
 def scenario_feedin(year):
-    # pv feedin
-    my_index = pd.MultiIndex(
-            levels=[[], []], labels=[[], []],
-            names=['region', 'type'])
-    feed_in = scenario_feedin_pv(year, my_index)
-    feed_in = scenario_feedin_wind(year, feed_in)
-    return feed_in
-
-
-def scenario_feedin_wind(year, feedin_ts):
-    # TODO Fix wind energy type!!!!
-    wind = feedin.get_berlin_feedin(year, 'wind')
-    for reg in wind.columns.levels[0]:
-        feedin_ts['feedin', 'wind'] = wind[
-            reg, 'coastdat_{0}_wind_ENERCON_127_hub135_pwr_7500'.format(year),
-            'E_126_7500']
-    return feedin_ts.sort_index(1)
-
-
-def scenario_feedin_pv(year, my_index):
-    pv_types = cfg.get_dict('pv_types')
-    pv_orientation = cfg.get_dict('pv_orientation')
-    pv = feedin.get_berlin_feedin(2014, 'solar')
-
-    # combine different pv-sets to one feedin time series
-    feedin_ts = pd.DataFrame(columns=my_index, index=pv.index)
-    orientation_fraction = pd.Series(pv_orientation)
-
-    pv.sort_index(1, inplace=True)
-    orientation_fraction.sort_index(inplace=True)
-    base_set_column = 'coastdat_{0}_solar_{1}'.format(year, '{0}')
-    for reg in pv.columns.levels[0]:
-        feedin_ts['feedin', 'solar'] = 0
-        for mset in pv_types.keys():
-            set_col = base_set_column.format(mset)
-            feedin_ts['feedin', 'solar'] += pv[reg, set_col].multiply(
-                orientation_fraction).sum(1).multiply(
-                pv_types[mset])
-    return feedin_ts.sort_index(1)
+    return coastdat.scenario_feedin(year, 'BE')
 
 
 def commodity_sources(year):
@@ -216,13 +179,12 @@ def scenario_elec_demand(year, time_series):
 
 def create_basic_scenario(year):
     table_collection = create_scenario(year)
-
+    name = 'berlin_basic'
     sce = scenario_tools.Scenario(table_collection=table_collection,
-                                  name='berlin_basic', year=year)
-    path = os.path.join(cfg.get('paths', 'scenario'), 'berlin_basic',
-                        str(year))
+                                  name=name, year=year)
+    path = os.path.join(cfg.get('paths', 'scenario'), str(year))
     sce.to_excel(os.path.join(path, '_'.join([sce.name, str(year)]) + '.xls'))
-    sce.to_csv(os.path.join(path, 'csv'))
+    sce.to_csv(os.path.join(path, 'csv', name))
 
 
 if __name__ == "__main__":

@@ -25,7 +25,7 @@ import oemof.solph as solph
 import reegis_tools.config as cfg
 import reegis_tools.scenario_tools
 import berlin_hp
-import de21
+import deflex
 
 
 def stopwatch():
@@ -34,24 +34,29 @@ def stopwatch():
     return str(datetime.now() - stopwatch.start)[:-7]
 
 
+def create_reduced_de22_scenario(year):
+    pass
+
+
 def create_reduced_de21_scenario(year):
     stopwatch()
 
     logging.info("Read scenarios from excel-sheet: {0}".format(stopwatch()))
 
     # Berlin
-    berlin = berlin_hp.Scenario(name='berlin_basic', year=year)
-    berlin_fn = os.path.join(cfg.get('paths', 'scenario'), 'berlin_basic',
+    name = 'berlin_basic'
+    berlin = berlin_hp.Scenario(name=name, year=year)
+    berlin_fn = os.path.join(cfg.get('paths', 'scenario'),
                              '{year}', 'berlin_basic_{year}.xls')
     berlin.load_excel(berlin_fn.format(year=year))
     berlin.check_table('time_series')
 
     # de21
-    de = de21.Scenario(name='basic', year=2014)
-    de_path = os.path.join(cfg.get('paths', 'scenario'), 'basic', '{year}',
-                           'csv')
+    de = deflex.Scenario(name='basic', year=2014)
+    de_path = os.path.join(cfg.get('paths', 'scenario'), '{year}',
+                           'csv', 'basic_de21')
     de.load_csv(de_path.format(year=year))
-    # de.check_table('time_series')
+    de.check_table('time_series')
 
     # control table
     ct = pd.DataFrame(
@@ -162,27 +167,35 @@ def create_reduced_de21_scenario(year):
     sub = pd.DataFrame(
         columns=['DE_orig', 'DE01_orig', 'BE', 'DE01_new', 'DE_new'])
 
-    y = 2014
     import reegis_tools.powerplants
     pwp = reegis_tools.powerplants.get_pp_by_year(
-        y, overwrite_capacity=True, capacity_in=True)
-    table_collect = de21.basic_scenario.powerplants(
-        pwp, {}, y, region_column='federal_states')
-    heat_b = reegis_tools.powerplants.get_chp_share_and_efficiency_states(y)
+        year, overwrite_capacity=True, capacity_in=True)
+
+    table_collect = deflex.basic_scenario.powerplants(
+        pwp, {}, year, region_column='federal_states')
+
+    heat_b = reegis_tools.powerplants.get_chp_share_and_efficiency_states(year)
 
     heat_b['BE']['fuel_share'].rename(columns={'re': 'bioenergy'},
                                       inplace=True)
-
+    print(berlin_district_heating)
+    print(type(berlin_district_heating))
     heat_demand = pd.DataFrame(berlin_district_heating,
                                columns=['district_heating'])
+
     heat_demand = (
         pd.concat([heat_demand], axis=1, keys=['BE']).sort_index(1))
 
-    table_collect = de21.basic_scenario.chp_table(
+    print(heat_demand)
+    print(type(heat_demand))
+
+    table_collect = deflex.basic_scenario.chp_table(
         heat_b, heat_demand, table_collect, regions=['BE'])
 
     rows = [r for r in de.table_collection['transformer'].index
             if 'efficiency' not in r]
+    print(de.table_collection['transformer'].loc[rows, region])
+    print(table_collect['transformer'].loc[rows, 'BE'])
 
     sub['BE'] = (table_collect['transformer'].loc[rows, 'BE']).sum(axis=1)
 
@@ -211,10 +224,12 @@ def create_reduced_de21_scenario(year):
         cfg.get('paths', 'messages'), 'summery_embedded_model.xls'))
 
     sce = reegis_tools.scenario_tools.Scenario(
-        table_collection=de.table_collection, name='de_without_BE', year=2014)
-    path = os.path.join(cfg.get('paths', 'scenario'), 'basic', str(year))
+        table_collection=de.table_collection,
+        name='de21_without_BE',
+        year=yr)
+    path = os.path.join(cfg.get('paths', 'scenario'), str(year))
     sce.to_excel(os.path.join(path, '_'.join([sce.name, str(year)]) + '.xls'))
-    csv_path = os.path.join(path, 'csv_without_BE')
+    csv_path = os.path.join(path, 'csv', 'de21_without_BE')
     sce.to_csv(csv_path)
     return csv_path
 
@@ -240,27 +255,25 @@ def connect_electricity_buses(bus1, bus2, nodes):
     return nodes
 
 
-def main(year, de21_csv_path):
+def main(year):
     stopwatch()
+    scenario_path = os.path.join(cfg.get('paths', 'scenario'), str(year))
+    de21_scenario_csv = os.path.join(scenario_path, 'csv', 'basic_de21')
 
     # Load data of the de21 model
     logging.info("Read de21 scenario from csv collection: {0}".format(
         stopwatch()))
-    sc_de = de21.Scenario(name='basic', year=year)
-    sc_de.load_csv(de21_csv_path)
-    # sc_de.check_table('time_series')
+    sc_de = deflex.Scenario(name='basic', year=year)
+    sc_de.load_csv(de21_scenario_csv)
+    sc_de.check_table('time_series')
 
     # Create nodes for the de21 model
     nodes_de21 = sc_de.create_nodes()
 
-    sc_be = berlin_hp.Scenario(name='berlin_basic', year=year)
-
-    scpath = os.path.join(cfg.get('paths', 'scenario'), 'berlin_basic',
-                          str(year))
-
     # Load data of the berlin_hp Model
     logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
-    excel_fn = os.path.join(scpath, '_'.join([sc_be.name, str(year)]) + '.xls')
+    excel_fn = os.path.join(scenario_path, 'berlin_basic_{0}.xls'.format(year))
+    sc_be = berlin_hp.Scenario(name='berlin_basic', year=year)
     sc_be.load_excel(excel_fn)
     sc_be.check_table('time_series')
 
@@ -283,7 +296,10 @@ def main(year, de21_csv_path):
 
     # Dump the energy system with the results to disc
     logging.info("Solved. Dump results: {0}".format(stopwatch()))
-    sc_be.dump_es(os.path.join(scpath, 'berlin_hp_de21.esys'))
+    res_path = os.path.join(scenario_path, 'results')
+    if not os.path.isdir(res_path):
+        os.mkdir(res_path)
+    sc_be.dump_es(os.path.join(res_path, 'berlin_hp_de21.esys'))
 
     logging.info("All done. de21 finished without errors: {0}".format(
         stopwatch()))
@@ -292,7 +308,7 @@ def main(year, de21_csv_path):
 if __name__ == "__main__":
     logger.define_logging(file_level=logging.INFO)
     yr = 2014
-    berlin_hp.main(yr)
-    de21.main(yr)
-    sc_path = create_reduced_de21_scenario(yr)
-    main(yr, sc_path)
+    # berlin_hp.main(yr)
+    # de21.main(yr)
+    # sc_path = create_reduced_de21_scenario(yr)
+    # main(yr)

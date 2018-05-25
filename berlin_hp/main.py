@@ -36,8 +36,7 @@ def main(year):
 
     sc = berlin_hp.Scenario(name='berlin_basic', year=year, debug=False)
 
-    path = os.path.join(cfg.get('paths', 'scenario'), 'berlin_basic',
-                        str(year))
+    path = os.path.join(cfg.get('paths', 'scenario'), str(year))
 
     logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
     excel_fn = os.path.join(path, '_'.join([sc.name, str(year)]) + '.xls')
@@ -69,10 +68,8 @@ def main(year):
 
 
 if __name__ == "__main__":
-    logger.define_logging(file_level=logging.INFO)
-    main(2014)
-    exit(0)
-    for y in [2014]:
+    logger.define_logging()
+    for y in [2014, 2013, 2012]:
         try:
             main(y)
         except Exception as e:

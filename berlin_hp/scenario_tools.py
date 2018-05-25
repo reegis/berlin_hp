@@ -63,7 +63,7 @@ def nodes_from_table_collection(table_collection, nodes=None):
         vs_label = 'source_{0}_{1}'.format(vs_type, 'BE')
         capacity = vs.loc['capacity', ('BE', vs_type)]
         try:
-            feedin = ts['feedin', vs_type.lower()]
+            feedin = ts['BE', vs_type.lower()]
         except KeyError:
             if capacity > 0:
                 msg = "Missing time series for {0} (capacity: {1}) in {2}."
