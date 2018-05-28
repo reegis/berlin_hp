@@ -322,9 +322,9 @@ def main(year, rmap):
     res_path = os.path.join(scenario_path, 'results')
     if not os.path.isdir(res_path):
         os.mkdir(res_path)
-    sc_be.dump_es(os.path.join(res_path, 'berlin_hp_de21.esys'))
+    sc_be.dump_es(os.path.join(res_path, 'berlin_hp_{0}.esys'.format(rmap)))
 
-    logging.info("All done. de21 finished without errors: {0}".format(
+    logging.info("All done. Berlin {0} finished without errors: {0}".format(
         stopwatch()))
 
 
