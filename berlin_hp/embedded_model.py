@@ -201,24 +201,18 @@ def create_reduced_de21_scenario(year):
 
     heat_b['BE']['fuel_share'].rename(columns={'re': 'bioenergy'},
                                       inplace=True)
-    print(berlin_district_heating)
-    print(type(berlin_district_heating))
+
     heat_demand = pd.DataFrame(berlin_district_heating,
                                columns=['district_heating'])
 
     heat_demand = (
         pd.concat([heat_demand], axis=1, keys=['BE']).sort_index(1))
 
-    print(heat_demand)
-    print(type(heat_demand))
-
     table_collect = deflex.basic_scenario.chp_table(
         heat_b, heat_demand, table_collect, regions=['BE'])
 
     rows = [r for r in de.table_collection['transformer'].index
             if 'efficiency' not in r]
-    print(de.table_collection['transformer'].loc[rows, region])
-    print(table_collect['transformer'].loc[rows, 'BE'])
 
     sub['BE'] = (table_collect['transformer'].loc[rows, 'BE']).sum(axis=1)
 
@@ -272,7 +266,7 @@ def connect_electricity_buses(bus1, bus2, nodes):
                     bus_label_out, bus_label_in))
         nodes[line_label] = solph.Transformer(
             label=line_label,
-            inputs={nodes[bus_label_in]: solph.Flow()},
+            inputs={nodes[bus_label_in]: solph.Flow(variable_costs=0.0000001)},
             outputs={nodes[bus_label_out]: solph.Flow()})
     return nodes
 

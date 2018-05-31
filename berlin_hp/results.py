@@ -156,10 +156,10 @@ def plot_power_lines(data, key, cmap_lines=None, cmap_bg=None,
 
 def compare_transmission(year):
     # DE21
-    sc_de21_results = load_de_results(year)
+    sc_de21_results = load_results(year, 'de21', 'deflex')
 
     # DE21 + BE
-    sc_debe_results = load_de_be_results(year)
+    sc_debe_results = load_results(year, 'de22', 'berlin_hp')
 
     lines = [x for x in sc_de21_results.keys() if 'power_line' in x[0]]
 
@@ -190,6 +190,19 @@ def compare_transmission(year):
     plot_power_lines(transmission, key, vmax=vmax/2)
 
     return transmission
+
+
+def sum_up_electricity_bus(year):
+    # results = load_results(year, 'de22', 'deflex')
+    # bus_elec_de22 = outputlib.views.node(results, 'bus_elec_DE22')
+    # print(bus_elec_de22['sequences'].sum())
+    results = load_results(year, 'de22', 'deflex')
+
+    # print([x[0] for x in results.keys() if 'BE' in x[0]])
+    # exit(0)
+    bus_elec_be = outputlib.views.node(results, 'bus_elec_DE22')
+    print(bus_elec_be['sequences'].sum())
+    plot_bus('bus_elec_DE22', results)
 
 
 def plot_regions(data, column):
@@ -242,7 +255,7 @@ def reshape_results(results, data, region, node=None):
 
 
 def get_multiregion_results(year):
-    de_results = load_de_results(year)
+    de_results = load_results(year, 'de21', 'deflex')
 
     regions = [x[0].replace('shortage_bus_elec_', '')
                for x in de_results.keys()
@@ -287,32 +300,19 @@ def load_param_results():
     # return sc.es.results['param']
 
 
-def load_de_results(year):
-    path = os.path.join(cfg.get('paths', 'scenario'), 'basic', '{year}')
-    file = 'de21_basic_{year}.esys'
-    return load_results(path.format(year=year), file.format(year=year))
-
-
-def load_de_be_results(year):
-    path = os.path.join(cfg.get('paths', 'scenario'), 'berlin_basic', '{year}')
-    file = 'berlin_hp_de21_11.esys'
-    return load_results(path.format(year=year), file)
-
-
-def load_berlin_results(year):
-    path = os.path.join(cfg.get('paths', 'scenario'), 'berlin_basic', '{year}')
-    file = 'berlin_hp.esys'
-    return load_results(path.format(year=year), file)
-
-
-def load_results(path, file):
+def load_results(year, rmap, cat):
+    path = os.path.join(cfg.get('paths', 'scenario'), str(year), 'results')
+    file = '{cat}_{year}_{rmap}.esys'.format(cat=cat, year=year, rmap=rmap)
     sc = berlin_hp.Scenario()
-    sc.restore_es(os.path.join(path, file))
+    fn = os.path.join(path, file)
+    logging.info("Restoring file from {0}".format(fn))
+    print(datetime.fromtimestamp(os.path.getmtime(fn)).strftime(
+        '%d. %B %Y - %H:%M:%S'))
+    sc.restore_es(fn)
     return outputlib.processing.convert_keys_to_strings(sc.results)
 
 
-def check_excess_shortage(year):
-    results = load_berlin_results(year)
+def check_excess_shortage(results):
     ex_nodes = [x for x in results.keys() if 'excess' in x[1]]
     sh_nodes = [x for x in results.keys() if 'shortage' in x[0]]
     for node in ex_nodes:
@@ -332,9 +332,8 @@ def find_input_flow(out_flow, nodes):
     return [x for x in list(nodes.keys()) if x[1] == out_flow[0][0]]
 
 
-def get_full_load_hours(year):
+def get_full_load_hours(results):
     bus_label = 'bus_elec_BE'
-    results = load_berlin_results(year)
     params = load_param_results()
     my_node = outputlib.views.node(results, bus_label)['sequences']
     sums = my_node.sum()
@@ -388,8 +387,7 @@ def get_full_load_hours(year):
     plt.show()
 
 
-def plot_bus(node_label, year):
-    results = load_berlin_results(year)
+def plot_bus(node_label, results):
 
     fig = plt.figure(figsize=(10, 5))
 
@@ -412,13 +410,14 @@ def plot_bus(node_label, year):
                                      date_format='%d-%m-%H', offset=12)
 
     # ax.set_ylabel('Power in MW')
-    ax.set_xlabel(str(year))
+    ax.set_xlabel('Year')
     # ax.set_title("Electricity bus")
     plt.show()
 
 
 def get_orderlist(my_node, inflow=True):
-    my_order = ['source_solar', 'source_wind', 'chp', 'hp', 'pp', 'shortage']
+    my_order = ['source_solar', 'source_wind', 'chp', 'hp', 'pp', 'shortage',
+                'power_line']
     cols = list(my_node.columns)
     if inflow is True:
         f = 0
@@ -468,7 +467,8 @@ if __name__ == "__main__":
     logger.define_logging()
     stopwatch()
     # show_region_values_gui(2014)
-    compare_transmission(2014)
+    sum_up_electricity_bus(2014)
+    # compare_transmission(2014)
     exit(0)
     # get_full_load_hours(2014)
     # check_excess_shortage(2014)

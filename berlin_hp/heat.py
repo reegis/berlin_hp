@@ -178,7 +178,7 @@ def demand_by(data, demand_column, heating_systems=None,
         hlist = heating_systems * len(set(blist))
         multindex = pd.MultiIndex.from_tuples(list(zip(blist, hlist)),
                                               names=['first', 'second'])
-        # print(multindex)
+
         return pd.DataFrame(data=demand.as_matrix(), columns=multindex,
                             index=data.index)
 

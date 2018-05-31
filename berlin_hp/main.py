@@ -63,13 +63,13 @@ def main(year):
     logging.info("Solved. Dump results: {0}".format(stopwatch()))
     sc.dump_es(os.path.join(path, 'berlin_hp.esys'))
 
-    logging.info("All done. de21 finished without errors: {0}".format(
+    logging.info("All done. berlin_hp finished without errors: {0}".format(
         stopwatch()))
 
 
 if __name__ == "__main__":
     logger.define_logging()
-    for y in [2014, 2013, 2012]:
+    for y in [2014]:
         try:
             main(y)
         except Exception as e:
