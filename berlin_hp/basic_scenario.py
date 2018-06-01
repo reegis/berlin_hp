@@ -155,7 +155,7 @@ def decentralised_heating():
     return pd.read_csv(filename, header=[0, 1], index_col=[0])
 
 
-def scenario_heat_profiles(year, ts):
+def scenario_heat_profiles(year, ts, basic_scenario=True):
     df = heat.create_heat_profiles(year)
 
     dc_name = 'decentralised_demand'
@@ -168,6 +168,8 @@ def scenario_heat_profiles(year, ts):
             del df[(dc_name, col)]
 
     df = pd.concat([ts, df], axis=1)
+    if basic_scenario is True:
+        df['decentralised_demand', 'elec'] = 0
     return df
 
 
