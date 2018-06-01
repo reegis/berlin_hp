@@ -330,6 +330,7 @@ if __name__ == "__main__":
     # de21.main(yr)
     # create_reduced_de22_scenario(yr)
     for y in [2014, 2013, 2012]:
+        berlin_hp.basic_scenario.create_basic_scenario(y)
         create_reduced_de21_scenario(y)
         create_reduced_de22_scenario(y)
         for my_rmap in ['de21', 'de22']:
