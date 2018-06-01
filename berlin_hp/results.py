@@ -192,17 +192,17 @@ def compare_transmission(year):
     return transmission
 
 
-def sum_up_electricity_bus(year):
+def sum_up_electricity_bus(year, rmap, cat, region):
     # results = load_results(year, 'de22', 'deflex')
     # bus_elec_de22 = outputlib.views.node(results, 'bus_elec_DE22')
     # print(bus_elec_de22['sequences'].sum())
-    results = load_results(year, 'de22', 'deflex')
+    results = load_results(year, rmap, cat)
 
     # print([x[0] for x in results.keys() if 'BE' in x[0]])
     # exit(0)
-    bus_elec_be = outputlib.views.node(results, 'bus_elec_DE22')
+    bus_elec_be = outputlib.views.node(results, 'bus_elec_{0}'.format(region))
     print(bus_elec_be['sequences'].sum())
-    plot_bus('bus_elec_DE22', results)
+    plot_bus('bus_elec_{0}'.format(region), results)
 
 
 def plot_regions(data, column):
@@ -467,7 +467,9 @@ if __name__ == "__main__":
     logger.define_logging()
     stopwatch()
     # show_region_values_gui(2014)
-    sum_up_electricity_bus(2014)
+    sum_up_electricity_bus(2014, 'single', 'berlin_hp', 'BE')
+    sum_up_electricity_bus(2014, 'de21', 'deflex', 'DE01')
+
     # compare_transmission(2014)
     exit(0)
     # get_full_load_hours(2014)
