@@ -17,7 +17,7 @@ import math
 from matplotlib.colors import LinearSegmentedColormap
 
 
-def shape_legend(node, reverse=False, **kwargs):
+def shape_legend(node, rm_list, reverse=False, **kwargs):
     handels = kwargs['handles']
     labels = kwargs['labels']
     axes = kwargs['ax']
@@ -30,6 +30,8 @@ def shape_legend(node, reverse=False, **kwargs):
         label = label.replace(node, '')
         label = label.replace(',', '')
         label = label.replace(' ', '')
+        for item in rm_list:
+            label = label.replace(item, '')
         new_labels.append(label)
     labels = new_labels
 
@@ -192,17 +194,30 @@ def compare_transmission(year):
     return transmission
 
 
-def sum_up_electricity_bus(year, rmap, cat, region):
-    # results = load_results(year, 'de22', 'deflex')
-    # bus_elec_de22 = outputlib.views.node(results, 'bus_elec_DE22')
-    # print(bus_elec_de22['sequences'].sum())
-    results = load_results(year, rmap, cat)
+def powerlines2export_import(bus):
+    print(bus['sequences'].sum())
+    export_cols = [x for x in bus['sequences'].columns
+                   if 'power_line' in x[0][1]]
+    import_cols = [x for x in bus['sequences'].columns
+                   if 'power_line' in x[0][0]]
+    bus_name = [x[0][0] for x in bus['sequences'].columns
+                if 'power_line' in x[0][1]][0]
+    export_name = ((bus_name, 'export'), 'flow')
+    import_name = (('import', bus_name), 'flow')
+    bus['sequences'][export_name] = bus['sequences'][export_cols].sum(axis=1)
+    bus['sequences'][import_name] = bus['sequences'][import_cols].sum(axis=1)
+    bus['sequences'].drop(export_cols, axis=1, inplace=True)
+    bus['sequences'].drop(import_cols, axis=1, inplace=True)
+    return bus
 
-    # print([x[0] for x in results.keys() if 'BE' in x[0]])
-    # exit(0)
-    bus_elec_be = outputlib.views.node(results, 'bus_elec_{0}'.format(region))
-    print(bus_elec_be['sequences'].sum())
-    plot_bus('bus_elec_{0}'.format(region), results)
+
+def analyse_bus(year, rmap, cat, region):
+    results = load_results(year, rmap, cat)
+    bus_elec = outputlib.views.node(results, 'bus_elec_{0}'.format(region))
+    bus_elec = powerlines2export_import(bus_elec)
+    print(bus_elec['sequences'].sum())
+    plot_bus(bus_elec, 'bus_elec_{0}'.format(region),
+             rm_list=['_{0}'.format(region)])
 
 
 def plot_regions(data, column):
@@ -387,42 +402,50 @@ def get_full_load_hours(results):
     plt.show()
 
 
-def plot_bus(node_label, results):
+def plot_bus(node, node_label, rm_list=None):
 
     fig = plt.figure(figsize=(10, 5))
 
-    my_node = outputlib.views.node(results, node_label)['sequences']
+    my_node = node['sequences']
 
-    plot_slice = oev.plot.slice_df(my_node)
+    if rm_list is None:
+        rm_list = []
+
+    plot_slice = oev.plot.slice_df(my_node,
+                                   date_from=datetime(2014, 5, 31),
+                                   date_to=datetime(2014, 6, 8))
 
     # pprint.pprint(get_cdict(my_node))
 
     pp.pprint(my_node.columns)
-    pp.pprint(get_orderlist(my_node))
     # exit(0)
     my_plot = oev.plot.io_plot(node_label, plot_slice,
                                cdict=get_cdict(my_node),
-                               inorder=get_orderlist(my_node),
+                               inorder=get_orderlist(my_node, 'in'),
+                               outorder=get_orderlist(my_node, 'out'),
                                ax=fig.add_subplot(1, 1, 1),
                                smooth=True)
-    ax = shape_legend(node_label, **my_plot)
+    ax = shape_legend(node_label, rm_list, **my_plot)
     ax = oev.plot.set_datetime_ticks(ax, plot_slice.index, tick_distance=48,
-                                     date_format='%d-%m-%H', offset=12)
+                                     date_format='%d-%m-%H', offset=12,
+                                     tight=True)
 
-    # ax.set_ylabel('Power in MW')
+    ax.set_ylabel('Power in MW')
     ax.set_xlabel('Year')
-    # ax.set_title("Electricity bus")
+    ax.set_title("Electricity bus")
     plt.show()
 
 
-def get_orderlist(my_node, inflow=True):
-    my_order = ['source_solar', 'source_wind', 'chp', 'hp', 'pp', 'shortage',
-                'power_line']
+def get_orderlist(my_node, flow):
+    my_order = ['source_solar', 'source_wind', 'chp', 'hp', 'pp', 'import',
+                'shortage', 'power_line', 'demand', 'export', 'excess']
     cols = list(my_node.columns)
-    if inflow is True:
+    if flow == 'in':
         f = 0
-    else:
+    elif flow == 'out':
         f = 1
+    else:
+        logging.error("A flow has to be 'in' or 'out.")
     order = []
 
     for element in my_order:
@@ -467,10 +490,10 @@ if __name__ == "__main__":
     logger.define_logging()
     stopwatch()
     # show_region_values_gui(2014)
-    sum_up_electricity_bus(2014, 'single', 'berlin_hp', 'BE')
-    sum_up_electricity_bus(2014, 'de21', 'deflex', 'DE01')
+    # sum_up_electricity_bus(2014, 'single', 'berlin_hp', 'BE')
+    # analyse_bus(2014, 'de21', 'deflex', 'DE01')
 
-    # compare_transmission(2014)
+    compare_transmission(2014)
     exit(0)
     # get_full_load_hours(2014)
     # check_excess_shortage(2014)
