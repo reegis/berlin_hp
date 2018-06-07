@@ -263,13 +263,22 @@ def get_alkis_with_additional_data():
     return pd.read_hdf(filename_alkis, 'alkis')
 
 
-def oeq():
+def oeq(bzr=None):
     start = datetime.datetime.now()
 
-    filename_oeq_results = os.path.join(cfg.get('paths', 'oeq'),
-                                        cfg.get('oeq', 'results'))
+    if bzr is None:
+        reg = 'berlin'
+    else:
+        reg = bzr
+
+    filename_oeq_results = os.path.join(
+        cfg.get('paths', 'oeq'), cfg.get('oeq', 'results').format(region=reg))
 
     data = get_alkis_with_additional_data()
+
+    if bzr is not None:
+        data['BZR'] = data.PLR.div(100).astype(int)
+        data = data.loc[data.BZR == bzr]
 
     data['alkis_id'] = data.index
 
@@ -356,4 +365,5 @@ def oeq():
 
 if __name__ == "__main__":
     logger.define_logging(file_level=logging.INFO)
-    oeq()
+    # oeq()
+    oeq(bzr=90517)

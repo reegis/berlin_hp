@@ -205,8 +205,10 @@ def get_berlin_net_data(year, district=None):
     #
     if district is None:
         xml_district = '<district>'
+        district = 'berlin'
     else:
         xml_district = "<district name='{0}'>".format(district)
+        district = district.replace('-', '_')
 
     xml = """
     <smeterengine>
@@ -220,7 +222,8 @@ def get_berlin_net_data(year, district=None):
     url = cfg.get('electricity', 'url')
     filename = os.path.join(
         cfg.get('paths', 'electricity'),
-        cfg.get('electricity', 'file_xml').format(year=year))
+        cfg.get('electricity', 'file_xml').format(year=year,
+                                                  district=district))
     get_xml_from_server(url, xml, filename)
 
     return filename
@@ -228,4 +231,5 @@ def get_berlin_net_data(year, district=None):
 
 if __name__ == "__main__":
     logger.define_logging(file_level=logging.INFO)
-    # mp = download_maps()
+    # print(get_berlin_net_data(2014, district='Treptow-Koepenick'))
+    mp = download_maps(single='pv_map')

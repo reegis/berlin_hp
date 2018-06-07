@@ -31,10 +31,11 @@ import reegis_tools.geometries
 import berlin_hp.my_open_e_quarter
 
 
-def load_heat_data(filename=None, method='oeq', fill_frac_column=True):
+def load_heat_data(filename=None, method='oeq', fill_frac_column=True,
+                   region='berlin'):
     if method == 'oeq':
         if filename is None:
-            filename = cfg.get('oeq', 'results')
+            filename = cfg.get('oeq', 'results').format(region=region)
         fn = os.path.join(cfg.get('paths', 'oeq'), filename)
         if not os.path.isfile(fn):
             berlin_hp.my_open_e_quarter.oeq()
@@ -309,7 +310,7 @@ def create_standardised_heat_load_profile(shlp, year):
     return profile_fuel
 
 
-def create_heat_profiles(year):
+def create_heat_profiles(year, region='berlin'):
     """Create heat_profiles for the basic scenario as time series in MW.
 
     - district heating time series for the different district heating systems
@@ -319,6 +320,8 @@ def create_heat_profiles(year):
     ----------
     year : int
         The year of the basic scenario.
+    region : str or int
+        Region to load the heat data from.
 
     Returns
     -------
@@ -340,7 +343,7 @@ def create_heat_profiles(year):
     del heat_factor['gebaeude_1']
 
     # heat demand for each building from open_e_quarter
-    data_oeq = load_heat_data()
+    data_oeq = load_heat_data(region=region)
 
     # areas of district heating systems in Berlin
     distr_heat_areas = get_district_heating_areas()
@@ -363,8 +366,14 @@ def create_heat_profiles(year):
     # Level the overall heat demand with the heat demand from the energy
     # balance
     end_energy_table = get_end_energy_data(year)
+
     factor = (end_energy_table.loc['total', 'district heating'] /
               (data['total'].sum() / 1000 / 1000))
+
+    if region == 'berlin':
+        cfg.tmp_set('oeq', 'oeq_balance_factor', str(factor))
+    else:
+        factor = cfg.get('oeq', 'oeq_balance_factor')
 
     data['total'] = data['total'] * factor
 
@@ -430,16 +439,18 @@ def create_heat_profiles(year):
 if __name__ == "__main__":
     logger.define_logging()
     start = datetime.datetime.now()
-    my_data = load_heat_data()
-
-    bt_dict1 = {
-        'efh': 'floors < 2',
-        'mfh': 'floors > 1',
-    }
-
-    heating_systems1 = [s for s in my_data.columns if "frac_" in s]
-    remove_string1 = 'frac_'
-    print(demand_by(my_data, 'total_loss_pres', heating_systems1, bt_dict1,
-                    remove_string1))
-    print(dissolve(my_data, 'bezirk', ['my_total']))
+    # my_data = load_heat_data()
+    #
+    # bt_dict1 = {
+    #     'efh': 'floors < 2',
+    #     'mfh': 'floors > 1',
+    # }
+    #
+    # heating_systems1 = [s for s in my_data.columns if "frac_" in s]
+    # remove_string1 = 'frac_'
+    # print(demand_by(my_data, 'total_loss_pres', heating_systems1, bt_dict1,
+    #                 remove_string1))
+    # print(dissolve(my_data, 'bezirk', ['my_total']))
     print(create_heat_profiles(2014).sum())
+    print(cfg.get('oeq', 'oeq_balance_factor'))
+    print(create_heat_profiles(2014, region=90517).sum())

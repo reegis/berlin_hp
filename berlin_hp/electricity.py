@@ -70,19 +70,43 @@ def convert_net_xml2df(year, filename, hourly=True):
     return df
 
 
-def get_electricity_demand(year, hourly=True):
-    """Get the electricity demand in MW."""
+def get_electricity_demand(year, hourly=True, district=None):
+    """Get the electricity demand in MW.
+
+    Parameters
+    ----------
+    year : int
+        Year of the data set.
+    hourly : bool
+        Get hourly data.
+    district : str or None
+        District of Berlin. If None 'berlin' is used. Possible values are:
+        Pankow, Lichtenberg, Marzahn-Hellersdorf, Treptow-Koepenick, Neukoelln,
+        Friedrichshain-Kreuzberg, Mitte, Tempelhof-Schöneberg,
+        Steglitz-Zehlendorf, Charlottenburg-Wilmersdorf, Reinickendorf, Spandau
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+    if district is None:
+        district_name = 'berlin'
+    else:
+        district_name = district.replace('-', '_')
+
     xml_filename = os.path.join(
         cfg.get('paths', 'electricity'),
-        cfg.get('electricity', 'file_xml').format(year=year))
-
+        cfg.get('electricity', 'file_xml').format(year=year,
+                                                  district=district_name))
     csv_filename = os.path.join(
         cfg.get('paths', 'electricity'),
-        cfg.get('electricity', 'file_csv')).format(year=year)
+        cfg.get('electricity', 'file_csv')).format(year=year,
+                                                   district=district_name)
 
     if not os.path.isfile(xml_filename):
         logging.info("Download Berlin grid data for {0} as xml.".format(year))
-        xml_filename = berlin_hp.download.get_berlin_net_data(year)
+        xml_filename = berlin_hp.download.get_berlin_net_data(
+            year, district=district)
 
     if not os.path.isfile(csv_filename):
         df = convert_net_xml2df(year, xml_filename, hourly=hourly)
@@ -99,7 +123,7 @@ if __name__ == "__main__":
     logger.define_logging(file_level=logging.INFO)
     c = []
     for y in [2012, 2013, 2014, 2015, 2016]:
-        d = get_electricity_demand(y)
+        d = get_electricity_demand(y, district='Treptow-Koepenick')
         if d.isnull().values.any():
             for column in d.columns:
                 if d[column].isnull().any():
