@@ -55,41 +55,41 @@ def time_logger(txt, ref):
 
 
 def scenario_powerplants(year, ts):
-    POWERPLANTS!!!!!!!!!!1
-    pp = pd.read_csv(os.path.join(cfg.get('paths', 'data_berlin'),
-                                  cfg.get('powerplants', 'main_powerplants')),
-                     index_col=[0])
+    pp = pd.read_csv(os.path.join(
+            cfg.get('paths', 'data_berlin'),
+            cfg.get('powerplants', 'powerplants_friedrichshagen')),
+        index_col=[0])
     pp = pp.loc[(pp.commission < year) & (pp.decommission >= year)]
-    pp.columns = pd.MultiIndex.from_product([['BE'], pp.columns])
+    pp.columns = pd.MultiIndex.from_product([['FHG'], pp.columns])
 
     dec_dh = ts['district_heating_demand', 'decentralised_dh']
 
-    # Fetch config values from scenario.ini
-    share_hp_chp = cfg.get('decentralised_chp', 'share_hp_chp')
-    over_cap = cfg.get('decentralised_chp', 'overcapacity_factor')
-    eff_chp_heat = cfg.get('decentralised_chp', 'efficiency_chp_heat')
-    eff_chp_elec = cfg.get('decentralised_chp', 'efficiency_chp_elec')
-    eff_heat = cfg.get('decentralised_chp', 'efficiency_heat')
-    heat_capacity = dec_dh.max() * over_cap
-
-    # decentralised CHP blocks
-    pp.loc['decentralised CHP-blocks', ('BE', 'fuel')] = 'natural_gas'
-    pp.loc['decentralised CHP-blocks', ('BE', 'capacity_elec')] = round(
-        heat_capacity * (1 - share_hp_chp) / eff_chp_heat * eff_chp_elec)
-    pp.loc['decentralised CHP-blocks', ('BE', 'capacity_heat')] = round(
-        heat_capacity * (1 - share_hp_chp))
-    pp.loc['decentralised CHP-blocks', ('BE', 'efficiency')] = (
-        eff_chp_elec + eff_chp_heat)
-    pp.loc['decentralised CHP-blocks', ('BE', 'type')] = 'FIX'
-    pp.loc['decentralised CHP-blocks', ('BE', 'network')] = 'decentralised_dh'
-
-    # decentralised heat devices
-    pp.loc['decentralised heat-blocks', ('BE', 'fuel')] = 'natural_gas'
-    pp.loc['decentralised heat-blocks', ('BE', 'capacity_heat')] = round(
-        heat_capacity * share_hp_chp)
-    pp.loc['decentralised heat-blocks', ('BE', 'efficiency')] = eff_heat
-    pp.loc['decentralised heat-blocks', ('BE', 'type')] = 'HP'
-    pp.loc['decentralised heat-blocks', ('BE', 'network')] = 'decentralised_dh'
+    # # Fetch config values from scenario.ini
+    # share_hp_chp = cfg.get('decentralised_chp', 'share_hp_chp')
+    # over_cap = cfg.get('decentralised_chp', 'overcapacity_factor')
+    # eff_chp_heat = cfg.get('decentralised_chp', 'efficiency_chp_heat')
+    # eff_chp_elec = cfg.get('decentralised_chp', 'efficiency_chp_elec')
+    # eff_heat = cfg.get('decentralised_chp', 'efficiency_heat')
+    # heat_capacity = dec_dh.max() * over_cap
+    #
+    # # decentralised CHP blocks
+    # pp.loc['decentralised CHP-blocks', ('BE', 'fuel')] = 'natural_gas'
+    # pp.loc['decentralised CHP-blocks', ('BE', 'capacity_elec')] = round(
+    #     heat_capacity * (1 - share_hp_chp) / eff_chp_heat * eff_chp_elec)
+    # pp.loc['decentralised CHP-blocks', ('BE', 'capacity_heat')] = round(
+    #     heat_capacity * (1 - share_hp_chp))
+    # pp.loc['decentralised CHP-blocks', ('BE', 'efficiency')] = (
+    #     eff_chp_elec + eff_chp_heat)
+    # pp.loc['decentralised CHP-blocks', ('BE', 'type')] = 'FIX'
+    # pp.loc['decentralised CHP-blocks', ('BE', 'network')] = 'decentralised_dh'
+    #
+    # # decentralised heat devices
+    # pp.loc['decentralised heat-blocks', ('BE', 'fuel')] = 'natural_gas'
+    # pp.loc['decentralised heat-blocks', ('BE', 'capacity_heat')] = round(
+    #     heat_capacity * share_hp_chp)
+    # pp.loc['decentralised heat-blocks', ('BE', 'efficiency')] = eff_heat
+    # pp.loc['decentralised heat-blocks', ('BE', 'type')] = 'HP'
+    # pp.loc['decentralised heat-blocks', ('BE', 'network')] = 'decentralised_dh'
 
     return pp
 

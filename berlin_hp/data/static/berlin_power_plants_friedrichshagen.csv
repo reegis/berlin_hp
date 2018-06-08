@@ -1,0 +1,3 @@
+,commission,decommission,fuel,fuel_2,capacity_elec,capacity_heat,efficiency,chp_coeff,elec_loss_factor,type,network,source
+Friedrichshagen BHKW,2003,2033,natural gas,,0.8,0.8,0.8,1,,FIX,FL_Vattenfall_Friedrichsh,https://www.energie-und-management.de/free-archive/feview3/12192
+Friedrichshagen HWE,1998,2038,natural gas,,,27.9,0.9,,,HP,FL_Vattenfall_Friedrichsh,https://www.energie-und-management.de/free-archive/feview3/12192
