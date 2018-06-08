@@ -8,6 +8,7 @@ from oemof.tools import logger
 import reegis_tools.config as cfg
 from datetime import datetime
 import oemof.outputlib as outputlib
+from oemof.outputlib import analyzer
 from matplotlib import pyplot as plt
 import oemof_visio as oev
 import pandas as pd
@@ -327,6 +328,18 @@ def load_results(year, rmap, cat):
     return outputlib.processing.convert_keys_to_strings(sc.results)
 
 
+def load_all_results(year, rmap, cat):
+    path = os.path.join(cfg.get('paths', 'scenario'), str(year), 'results')
+    file = '{cat}_{year}_{rmap}.esys'.format(cat=cat, year=year, rmap=rmap)
+    sc = berlin_hp.Scenario()
+    fn = os.path.join(path, file)
+    logging.info("Restoring file from {0}".format(fn))
+    print(datetime.fromtimestamp(os.path.getmtime(fn)).strftime(
+        '%d. %B %Y - %H:%M:%S'))
+    sc.restore_es(fn)
+    return sc.es.results
+
+
 def check_excess_shortage(results):
     ex_nodes = [x for x in results.keys() if 'excess' in x[1]]
     sh_nodes = [x for x in results.keys() if 'shortage' in x[0]]
@@ -486,8 +499,92 @@ def get_cdict(my_node):
     return color_dict
 
 
+def test_analyser(results):
+    import pprint as pp
+    analysis = analyzer.Analysis(
+        results['Main'],
+        results['Param'],
+        iterator=analyzer.FlowNodeIterator)
+    seq = analyzer.SequenceFlowSumAnalyzer()
+    ft = analyzer.FlowTypeAnalyzer()
+    demand_nodes = [x[1] for x in results['Main'].keys() if x[1] is not None and 'demand_elec' in x[1].label]
+    print(demand_nodes)
+    lcoe = analyzer.LCOEAnalyzer(demand_nodes)
+    nb_analyzer = analyzer.NodeBalanceAnalyzer()
+    analysis.add_analyzer(analyzer.SequenceFlowSumAnalyzer())
+    analysis.add_analyzer(analyzer.VariableCostAnalyzer())
+    analysis.add_analyzer(analyzer.InvestAnalyzer())
+    analysis.add_analyzer(lcoe)
+    analysis.add_analyzer(ft)
+    analysis.add_analyzer(nb_analyzer)
+    analysis.analyze()
+    balance = lcoe.total
+    # pp.pprint(seq.result)
+    pp.pprint(balance)
+    exit(0)
+    blnc = {}
+    for b in balance.keys():
+        blnc[b.label] = balance[b]
+
+    return blnc
+
+
+def balance_as_sankey(balance):
+    b7 = balance['bus_elec_DE07']
+    lab = []
+    fl = []
+    ori = []
+    n = 1
+    for k, v in b7['input'].items():
+        lab.append('in')
+        fl.append(v)
+        ori.append(n)
+        n *= -1
+    for k, v in b7['output'].items():
+        lab.append('o')
+        fl.append(v * (-1))
+        ori.append(0)
+    from matplotlib.sankey import Sankey
+    from matplotlib import pyplot as plt
+    fig = plt.figure()
+
+    Sankey(flows=fl,
+           labels=lab,
+           orientations=ori
+           ).finish()
+
+    # Sankey(flows=[0.25, 0.15, 0.60, -0.20, -0.15, -0.05, -0.50, -0.10],
+    #        labels=['', '', '', 'First', 'Second', 'Third', 'Fourth', 'Fifth'],
+    #         orientations=[-1, 1, 0, 1, 1, 1, 0, -1]
+    #        ).finish()
+    plt.title("The default settings produce a diagram like this.")
+
+    ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[],
+                         title="Flow Diagram of a Widget")
+    sankey = Sankey(ax=ax, scale=0.01, offset=0.2, head_angle=180,
+                    format='%.0f', unit='%')
+    sankey.add(flows=[25, 0, 60, -10, -20, -5, -15, -10, -40],
+               labels=['', '', '', 'First', 'Second', 'Third', 'Fourth',
+                       'Fifth', 'Hurray!'],
+               orientations=[-1, 1, 0, 1, 1, 1, -1, -1, 0],
+               pathlengths=[0.25, 0.25, 0.25, 0.25, 0.25, 0.6, 0.25, 0.25,
+                            0.25],
+               patchlabel="Widget\nA")  # Arguments to matplotlib.patches.PathPatch()
+    diagrams = sankey.finish()
+    diagrams[0].texts[-1].set_color('r')
+    diagrams[0].text.set_fontweight('bold')
+    plt.show()
+
+
 if __name__ == "__main__":
     logger.define_logging()
+    # res = load_all_results(2014, 'de21', 'deflex')
+    # print(res.keys())
+    # print(res['Meta'])
+    # exit(0)
+    bl = test_analyser(load_all_results(2014, 'de21', 'deflex'))
+    balance_as_sankey(bl)
+    exit(0)
     stopwatch()
     # show_region_values_gui(2014)
     # sum_up_electricity_bus(2014, 'single', 'berlin_hp', 'BE')
