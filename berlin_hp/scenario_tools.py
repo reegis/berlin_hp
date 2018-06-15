@@ -152,86 +152,91 @@ def nodes_from_table_collection(table_collection, nodes=None):
     fuel_dict = cfg.get_dict('fuel_dict')
 
     # Create chp plants with extraction turbine
-    for ext in pp.loc['EXT'].iterrows():
-        heat_sys = district_heating_systems[ext[0][0]]
-        src = ext[0][1].replace(' ', '_')
-        if src in fuel_dict:
-            src = fuel_dict[src]
-        src_bus_label = 'bus_cs_{0}'.format(src)
-        heat_bus_label = 'bus_distr_heat_{0}'.format(heat_sys)
-        chp_label = 'transf_chp_ext_{0}_{1}'.format(src, heat_sys)
+    if 'EXT' in pp.index:
+        for ext in pp.loc['EXT'].iterrows():
+            heat_sys = district_heating_systems[ext[0][0]]
+            src = ext[0][1].replace(' ', '_')
+            if src in fuel_dict:
+                src = fuel_dict[src]
+            src_bus_label = 'bus_cs_{0}'.format(src)
+            heat_bus_label = 'bus_distr_heat_{0}'.format(heat_sys)
+            chp_label = 'transf_chp_ext_{0}_{1}'.format(src, heat_sys)
 
-        bel = nodes[elec_bus_label]
-        bth = nodes[heat_bus_label]
+            bel = nodes[elec_bus_label]
+            bth = nodes[heat_bus_label]
 
-        nodes[chp_label] = solph.components.ExtractionTurbineCHP(
-            label=chp_label,
-            inputs={nodes[src_bus_label]: solph.Flow(
-                nominal_value=ext[1].capacity_in)},
-            outputs={bel: solph.Flow(),
-                     bth: solph.Flow()},
-            conversion_factors={bel: ext[1].eff_chp_elec,
-                                bth: ext[1].eff_chp_heat},
-            conversion_factor_full_condensation={bel: ext[1].eff_cond_elec})
+            nodes[chp_label] = solph.components.ExtractionTurbineCHP(
+                label=chp_label,
+                inputs={nodes[src_bus_label]: solph.Flow(
+                    nominal_value=ext[1].capacity_in)},
+                outputs={bel: solph.Flow(),
+                         bth: solph.Flow()},
+                conversion_factors={bel: ext[1].eff_chp_elec,
+                                    bth: ext[1].eff_chp_heat},
+                conversion_factor_full_condensation={
+                    bel: ext[1].eff_cond_elec})
 
     # Create chp plants with fixed heat ratio (e.g. backpressure)
-    for fix in pp.loc['FIX'].iterrows():
-        heat_sys = district_heating_systems[fix[0][0]]
-        src = fix[0][1].replace(' ', '_')
-        if src in fuel_dict:
-            src = fuel_dict[src]
-        src_bus_label = 'bus_cs_{0}'.format(src)
-        heat_bus_label = 'bus_distr_heat_{0}'.format(heat_sys)
-        chp_label = 'transf_chp_fix_{0}_{1}'.format(src, heat_sys)
+    if 'FIX' in pp.index:
+        for fix in pp.loc['FIX'].iterrows():
+            heat_sys = district_heating_systems[fix[0][0]]
+            src = fix[0][1].replace(' ', '_')
+            if src in fuel_dict:
+                src = fuel_dict[src]
+            src_bus_label = 'bus_cs_{0}'.format(src)
+            heat_bus_label = 'bus_distr_heat_{0}'.format(heat_sys)
+            chp_label = 'transf_chp_fix_{0}_{1}'.format(src, heat_sys)
 
-        bel = nodes[elec_bus_label]
-        bth = nodes[heat_bus_label]
+            bel = nodes[elec_bus_label]
+            bth = nodes[heat_bus_label]
 
-        nodes[chp_label] = solph.Transformer(
-            label=chp_label,
-            inputs={nodes[src_bus_label]: solph.Flow(
-                nominal_value=fix[1].capacity_in)},
-            outputs={bel: solph.Flow(),
-                     bth: solph.Flow()},
-            conversion_factors={bel: fix[1].eff_chp_elec,
-                                bth: fix[1].eff_chp_heat})
+            nodes[chp_label] = solph.Transformer(
+                label=chp_label,
+                inputs={nodes[src_bus_label]: solph.Flow(
+                    nominal_value=fix[1].capacity_in)},
+                outputs={bel: solph.Flow(),
+                         bth: solph.Flow()},
+                conversion_factors={bel: fix[1].eff_chp_elec,
+                                    bth: fix[1].eff_chp_heat})
 
     # Create heat plants (hp) without power production
-    for hp in pp.loc['HP'].iterrows():
-        heat_sys = district_heating_systems[hp[0][0]]
-        src = hp[0][1].replace(' ', '_')
-        if src in fuel_dict:
-            src = fuel_dict[src]
-        src_bus_label = 'bus_cs_{0}'.format(src)
-        heat_bus_label = 'bus_distr_heat_{0}'.format(heat_sys)
-        hp_label = 'transf_hp_{0}_{1}'.format(src, heat_sys)
+    if 'HP' in pp.index:
+        for hp in pp.loc['HP'].iterrows():
+            heat_sys = district_heating_systems[hp[0][0]]
+            src = hp[0][1].replace(' ', '_')
+            if src in fuel_dict:
+                src = fuel_dict[src]
+            src_bus_label = 'bus_cs_{0}'.format(src)
+            heat_bus_label = 'bus_distr_heat_{0}'.format(heat_sys)
+            hp_label = 'transf_hp_{0}_{1}'.format(src, heat_sys)
 
-        bth = nodes[heat_bus_label]
+            bth = nodes[heat_bus_label]
 
-        nodes[hp_label] = solph.Transformer(
-            label=hp_label,
-            inputs={nodes[src_bus_label]: solph.Flow(
-                nominal_value=hp[1].capacity_in)},
-            outputs={bth: solph.Flow()},
-            conversion_factors={bth: hp[1].eff_chp_heat})
+            nodes[hp_label] = solph.Transformer(
+                label=hp_label,
+                inputs={nodes[src_bus_label]: solph.Flow(
+                    nominal_value=hp[1].capacity_in)},
+                outputs={bth: solph.Flow()},
+                conversion_factors={bth: hp[1].eff_chp_heat})
 
     # Create power plants without heat extraction
-    for pp in pp.loc['PP'].iterrows():
-        heat_sys = district_heating_systems[pp[0][0]]
-        src = pp[0][1].replace(' ', '_')
-        if src in fuel_dict:
-            src = fuel_dict[src]
-        src_bus_label = 'bus_cs_{0}'.format(src)
-        pp_label = 'transf_pp_{0}_{1}'.format(src, heat_sys)
+    if 'PP' in pp.index:
+        for pp in pp.loc['PP'].iterrows():
+            heat_sys = district_heating_systems[pp[0][0]]
+            src = pp[0][1].replace(' ', '_')
+            if src in fuel_dict:
+                src = fuel_dict[src]
+            src_bus_label = 'bus_cs_{0}'.format(src)
+            pp_label = 'transf_pp_{0}_{1}'.format(src, heat_sys)
 
-        bel = nodes[elec_bus_label]
+            bel = nodes[elec_bus_label]
 
-        nodes[pp_label] = solph.Transformer(
-            label=pp_label,
-            inputs={nodes[src_bus_label]: solph.Flow()},
-            outputs={bel: solph.Flow(
-                nominal_value=pp[1].capacity_elec)},
-            conversion_factors={bel: pp[1].efficiency})
+            nodes[pp_label] = solph.Transformer(
+                label=pp_label,
+                inputs={nodes[src_bus_label]: solph.Flow()},
+                outputs={bel: solph.Flow(
+                    nominal_value=pp[1].capacity_elec)},
+                conversion_factors={bel: pp[1].efficiency})
 
     # # Storages
     # storages = table_collection['storages']
