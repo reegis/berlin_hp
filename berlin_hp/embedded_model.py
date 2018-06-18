@@ -36,6 +36,15 @@ def stopwatch():
     return str(datetime.now() - stopwatch.start)[:-7]
 
 
+def create_reduced_scenario(year, sim_type):
+    if sim_type == 'de21':
+        create_reduced_de21_scenario(year)
+    elif sim_type == 'de22':
+        create_reduced_de22_scenario(year)
+    else:
+        logging.error("Wrong sim_type {0}".format(sim_type))
+
+
 def create_reduced_de22_scenario(year):
     de = deflex.Scenario(name='basic', year=2014)
     de_path = os.path.join(cfg.get('paths', 'scenario'), '{year}',
@@ -51,13 +60,13 @@ def create_reduced_de22_scenario(year):
         if 'DE22' in i:
             de.table_collection['transmission'].drop(i, inplace=True)
 
-    name = 'de22_without_BE'
+    name = '{0}_{1}_{2}'.format('without_berlin', year, 'de22')
 
     sce = reegis_tools.scenario_tools.Scenario(
         table_collection=de.table_collection, name=name, year=year)
     path = os.path.join(cfg.get('paths', 'scenario'), str(year))
-    sce.to_excel(os.path.join(path, '_'.join([sce.name, str(year)]) + '.xls'))
-    csv_path = os.path.join(path, 'csv', name)
+    sce.to_excel(os.path.join(path, name + '.xls'))
+    csv_path = os.path.join(path, '{0}_csv'.format(name))
     sce.to_csv(csv_path)
 
 
@@ -239,35 +248,30 @@ def create_reduced_de21_scenario(year):
 
     ct.to_excel(os.path.join(
         cfg.get('paths', 'messages'), 'summery_embedded_model.xls'))
-
+    name = '{0}_{1}_{2}'.format('without_berlin', year, 'de21')
     sce = reegis_tools.scenario_tools.Scenario(
         table_collection=de.table_collection,
-        name='de21_without_BE',
+        name=name,
         year=year)
     path = os.path.join(cfg.get('paths', 'scenario'), str(year))
-    sce.to_excel(os.path.join(path, '_'.join([sce.name, str(year)]) + '.xls'))
-    csv_path = os.path.join(path, 'csv', 'de21_without_BE')
+    sce.to_excel(os.path.join(path, name + '.xls'))
+    csv_path = os.path.join(path, '{0}_csv'.format(name))
     sce.to_csv(csv_path)
 
 
-def connect_electricity_buses(bus1, bus2, nodes):
+def connect_electricity_buses(bus1, bus2, es):
+    nodes = {}
     lines = [(bus1, bus2), (bus2, bus1)]
     for line in lines:
         line_label = 'power_line_{0}_{1}'.format(line[0], line[1])
         bus_label_in = 'bus_elec_{0}'.format(line[0])
         bus_label_out = 'bus_elec_{0}'.format(line[1])
-        if bus_label_in not in nodes:
-            raise ValueError(
-                "Bus {0} missing for power line from {0} to {1}".format(
-                    bus_label_in, bus_label_out))
-        if bus_label_out not in nodes:
-            raise ValueError(
-                "Bus {0} missing for power line from {0} to {1}".format(
-                    bus_label_out, bus_label_in))
+        b_in = es.groups[bus_label_in]
+        b_out = es.groups[bus_label_out]
         nodes[line_label] = solph.Transformer(
             label=line_label,
-            inputs={nodes[bus_label_in]: solph.Flow(variable_costs=0.0000001)},
-            outputs={nodes[bus_label_out]: solph.Flow()})
+            inputs={b_in: solph.Flow(variable_costs=0.0000001)},
+            outputs={b_out: solph.Flow()})
     return nodes
 
 
@@ -295,13 +299,12 @@ def main(year, rmap):
     sc_be.check_table('time_series')
 
     # Create nodes for the berlin_hp model
-    nodes = sc_be.create_nodes(nodes_de21)
+    sc_be.add_nodes(nodes_de21)
+
+    sc_be.add_nodes(sc_be.create_nodes())
 
     # Connect de21 and berlin_hp with a transmission line
-    nodes = connect_electricity_buses('DE01', 'BE', nodes)
-
-    # Add nodes to the energy system
-    sc_be.add_nodes2solph(nodes=nodes)
+    sc_be.add_nodes(connect_electricity_buses('DE01', 'BE', sc_be.es))
 
     # Create model (all constraints)
     logging.info("Create the concrete model: {0}".format(stopwatch()))
@@ -320,6 +323,9 @@ def main(year, rmap):
 
     logging.info("All done. Berlin {0} finished without errors: {0}".format(
         stopwatch()))
+
+
+
 
 
 if __name__ == "__main__":
