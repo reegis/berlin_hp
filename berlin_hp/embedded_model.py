@@ -46,11 +46,18 @@ def create_reduced_scenario(year, sim_type):
 
 
 def create_reduced_de22_scenario(year):
-    de = deflex.Scenario(name='basic', year=2014)
-    de_path = os.path.join(cfg.get('paths', 'scenario'), '{year}',
-                           'csv', 'basic_de22')
-    de.load_csv(de_path.format(year=year))
+    name = '{0}_{1}_{2}'.format('deflex', year, 'de22')
+    de = deflex.Scenario(name=name, year=2014)
+    de_path = os.path.join(cfg.get('paths', 'scenario'), str(year),
+                           '{0}_csv'.format(name))
+
+    if not os.path.isdir(de_path):
+        logging.info("Create scenario for {0}: {1}".format(stopwatch(), name))
+        deflex.basic_scenario.create_basic_scenario(year, rmap='de22')
+
+    de.load_csv(de_path)
     de.check_table('time_series')
+
     logging.info('Remove region DE22....')
     for sheet in de.table_collection.values():
         if 'DE22' in sheet.columns:
@@ -76,17 +83,27 @@ def create_reduced_de21_scenario(year):
     logging.info("Read scenarios from excel-sheet: {0}".format(stopwatch()))
 
     # Berlin
-    name = 'berlin_basic'
+    name = '{0}_{1}_{2}'.format('berlin_hp', year, 'single')
     berlin = berlin_hp.Scenario(name=name, year=year)
-    berlin_fn = os.path.join(cfg.get('paths', 'scenario'),
-                             '{year}', 'berlin_basic_{year}.xls')
-    berlin.load_excel(berlin_fn.format(year=year))
+    berlin_fn = os.path.join(cfg.get('paths', 'scenario'), str(year),
+                             '{0}_csv'.format(name))
+    if not os.path.isdir(berlin_fn):
+        logging.info("Create scenario for {0}: {1}".format(stopwatch(), name))
+        berlin_hp.basic_scenario.create_basic_scenario(year)
+
+    berlin.load_csv(berlin_fn.format(year=year))
     berlin.check_table('time_series')
 
     # de21
-    de = deflex.Scenario(name='basic', year=2014)
+    name = '{0}_{1}_{2}'.format('deflex', year, 'de21')
+    de = deflex.Scenario(name=name, year=2014)
     de_path = os.path.join(cfg.get('paths', 'scenario'), '{year}',
-                           'csv', 'basic_de21')
+                           '{0}_csv'.format(name))
+
+    if not os.path.isdir(de_path):
+        logging.info("Create scenario for {0}: {1}".format(stopwatch(), name))
+        deflex.basic_scenario.create_basic_scenario(year, rmap='de21')
+
     de.load_csv(de_path.format(year=year))
     de.check_table('time_series')
 

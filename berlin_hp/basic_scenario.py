@@ -185,7 +185,7 @@ def create_basic_scenario(year):
     sce = scenario_tools.Scenario(table_collection=table_collection,
                                   name=name, year=year)
     path = os.path.join(cfg.get('paths', 'scenario'), str(year))
-    sce.to_excel(os.path.join(path, '_'.join([sce.name, str(year)]) + '.xls'))
+    sce.to_excel(os.path.join(path, name + '.xls'))
     sce.to_csv(os.path.join(path, '{0}_csv'.format(name)))
 
 
