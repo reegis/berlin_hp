@@ -1,6 +1,6 @@
 import os
 import logging
-import datetime
+from  datetime import datetime
 
 import pandas as pd
 import geopandas as gpd
@@ -17,6 +17,13 @@ import berlin_hp.heat as heat
 import berlin_hp.electricity as electricity
 import berlin_hp.download as download
 import berlin_hp.scenario_tools as scenario_tools
+from berlin_hp.scenario_tools import Scenario
+
+
+def stopwatch():
+    if not hasattr(stopwatch, 'start'):
+        stopwatch.start = datetime.now()
+    return str(datetime.now() - stopwatch.start)[:-7]
 
 
 def create_scenario(year):
@@ -50,7 +57,7 @@ def create_scenario(year):
 
 
 def time_logger(txt, ref):
-    msg = "{0}.Elapsed time: {1}".format(txt, datetime.datetime.now() - ref)
+    msg = "{0}.Elapsed time: {1}".format(txt, datetime.now() - ref)
     logging.info(msg)
 
 
@@ -60,7 +67,7 @@ def scenario_powerplants(year, ts):
             cfg.get('powerplants', 'powerplants_friedrichshagen')),
         index_col=[0])
     pp = pp.loc[(pp.commission < year) & (pp.decommission >= year)]
-    pp.columns = pd.MultiIndex.from_product([['FHG'], pp.columns])
+    pp.columns = pd.MultiIndex.from_product([['BE'], pp.columns])
 
     dec_dh = ts['district_heating_demand', 'decentralised_dh']
 
@@ -98,6 +105,7 @@ def scenario_volatile_sources(year):
     re = pd.DataFrame()
     re.loc['capacity', 'Wind'] = 0
     re.loc['capacity', 'Solar'] = installed_pv_capacity()
+    re.columns = pd.MultiIndex.from_product([['BE'], re.columns])
     return re
 
 
@@ -178,15 +186,6 @@ def scenario_elec_demand(year, time_series):
     return time_series
 
 
-def create_basic_scenario(year):
-    table_collection = create_scenario(year)
-    name = 'friedrichshagen_basic'
-    sce = scenario_tools.Scenario(table_collection=table_collection,
-                                  name=name, year=year)
-    path = os.path.join(cfg.get('paths', 'scenario'), str(year))
-    sce.to_excel(os.path.join(path, '_'.join([sce.name, str(year)]) + '.xls'))
-    sce.to_csv(os.path.join(path, 'csv', name))
-
 # **********************************************************
 
 
@@ -260,6 +259,58 @@ def solar_potential():
     print('Overall performance:', round(perform_factor, 2))
 
 
+def main(year):
+    stopwatch()
+
+    sc = Scenario(name='friedrichshagen_basic', year=year, debug=False)
+
+    path = os.path.join(cfg.get('paths', 'scenario'), str(year))
+
+    logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
+    excel_fn = os.path.join(path, '_'.join([sc.name, str(year)]) + '.xls')
+
+    if not os.path.isfile(excel_fn):
+        create_basic_scenario(year)
+
+    sc.load_excel(excel_fn)
+    sc.check_table('time_series')
+
+    logging.info("Add nodes to the EnergySystem: {0}".format(stopwatch()))
+    sc.add_nodes2solph()
+
+    # Save energySystem to '.graphml' file.
+    sc.plot_nodes(filename=os.path.join(path, 'friedrichshagen'),
+                  remove_nodes_with_substrings=['bus_cs'])
+
+    logging.info("Create the concrete model: {0}".format(stopwatch()))
+    sc.create_model()
+
+    logging.info("Solve the optimisation model: {0}".format(stopwatch()))
+    sc.solve()
+
+    logging.info("Solved. Dump results: {0}".format(stopwatch()))
+    results_path = os.path.join(path, 'results')
+    if not os.path.isdir(results_path):
+        os.mkdir(results_path)
+    sc.dump_es(os.path.join(results_path,
+                            'friedrichshagen_{0}_single.esys'.format(str(year))
+                            ))
+
+    logging.info(
+        "All done. friedrichshagen finished without errors: {0}".format(
+            stopwatch()))
+
+
+def create_basic_scenario(year):
+    table_collection = create_scenario(year)
+    name = 'friedrichshagen_basic'
+    sce = scenario_tools.Scenario(table_collection=table_collection,
+                                  name=name, year=year)
+    path = os.path.join(cfg.get('paths', 'scenario'), str(year))
+    sce.to_excel(os.path.join(path, '_'.join([sce.name, str(year)]) + '.xls'))
+    sce.to_csv(os.path.join(path, 'csv', name))
+
+
 if __name__ == "__main__":
     # logger.define_logging(file_level=logging.INFO)
     # installed_pv_capacity()
@@ -283,9 +334,9 @@ if __name__ == "__main__":
     # get_inhabitants(geo_bln, 'bezirk')
 
     logger.define_logging()
-    start = datetime.datetime.now()
+    start = datetime.now()
     for y in [2014, 2013, 2012]:
-        create_basic_scenario(y)
+        main(y)
         mesg = "Basic scenario for {0} created: {1}"
-        logging.info(mesg.format(y, datetime.datetime.now() - start))
-    logging.info("Done: {0}".format(datetime.datetime.now() - start))
+        logging.info(mesg.format(y, datetime.now() - start))
+    logging.info("Done: {0}".format(datetime.now() - start))
