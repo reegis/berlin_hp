@@ -23,11 +23,12 @@ class Scenario(reegis_tools.scenario_tools.Scenario):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def create_nodes(self, nodes=None):
-        return nodes_from_table_collection(self.table_collection, nodes)
+    def create_nodes(self, nodes=None, region='BE'):
+        return nodes_from_table_collection(
+            self.table_collection, nodes, region=region)
 
 
-def nodes_from_table_collection(table_collection, nodes=None):
+def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
     # Create  a special dictionary that will raise an error if a key is
     # updated. This avoids the
     if nodes is None:
@@ -52,22 +53,22 @@ def nodes_from_table_collection(table_collection, nodes=None):
     nodes['bus_cs_electricity'] = solph.Bus(label='bus_cs_electricity')
 
     # Create electricity Bus
-    elec_bus_label = 'bus_elec_{0}'.format('BE')
+    elec_bus_label = 'bus_elec_{0}'.format(region)
     nodes[elec_bus_label] = solph.Bus(label=elec_bus_label)
 
     # Local volatile electricity sources
     vs = table_collection['volatile_source']
     ts = table_collection['time_series']
     feedin = None
-    for vs_type in vs['BE'].columns:
-        vs_label = 'source_{0}_{1}'.format(vs_type, 'BE')
-        capacity = vs.loc['capacity', ('BE', vs_type)]
+    for vs_type in vs[region].columns:
+        vs_label = 'source_{0}_{1}'.format(vs_type, region)
+        capacity = vs.loc['capacity', (region, vs_type)]
         try:
-            feedin = ts['BE', vs_type.lower()]
+            feedin = ts[region, vs_type.lower()]
         except KeyError:
             if capacity > 0:
                 msg = "Missing time series for {0} (capacity: {1}) in {2}."
-                raise ValueError(msg.format(vs_type, capacity, 'BE'))
+                raise ValueError(msg.format(vs_type, capacity, region))
         if capacity * sum(feedin) > 0:
             nodes[vs_label] = solph.Source(
                 label=vs_label,
@@ -114,7 +115,7 @@ def nodes_from_table_collection(table_collection, nodes=None):
                     nominal_value=1, fixed=True)})
 
     # Electricity demand
-    elec_demand_label = 'demand_elec_{0}'.format('BE')
+    elec_demand_label = 'demand_elec_{0}'.format(region)
     nodes[elec_demand_label] = solph.Sink(
         label=elec_demand_label,
         inputs={nodes[elec_bus_label]: solph.Flow(
@@ -135,7 +136,7 @@ def nodes_from_table_collection(table_collection, nodes=None):
                     nominal_value=1, fixed=True)})
 
     # Prepare the input table for power plants
-    pp = table_collection['powerplants']['BE'].copy()
+    pp = table_collection['powerplants'][region].copy()
 
     pp = pp.fillna(0)
     pp['capacity_in'] = (pp.capacity_elec + pp.capacity_heat) / pp.efficiency
