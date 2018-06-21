@@ -51,7 +51,7 @@ def create_scenario(year):
     table_collection['commodity_sources'] = commodity_sources(year)
 
     logging.info('BASIC SCENARIO - VOLATILE SOURCES')
-    table_collection['volatile_source'] = scenario_volatile_sources(year)
+    table_collection['volatile_source'] = scenario_volatile_sources()
 
     return table_collection
 
@@ -67,7 +67,7 @@ def scenario_powerplants(year, ts):
             cfg.get('powerplants', 'powerplants_friedrichshagen')),
         index_col=[0])
     pp = pp.loc[(pp.commission < year) & (pp.decommission >= year)]
-    pp.columns = pd.MultiIndex.from_product([['BE'], pp.columns])
+    pp.columns = pd.MultiIndex.from_product([['FHG'], pp.columns])
 
     dec_dh = ts['district_heating_demand', 'decentralised_dh']
 
@@ -101,16 +101,18 @@ def scenario_powerplants(year, ts):
     return pp
 
 
-def scenario_volatile_sources(year):
+def scenario_volatile_sources():
     re = pd.DataFrame()
     re.loc['capacity', 'Wind'] = 0
     re.loc['capacity', 'Solar'] = installed_pv_capacity()
-    re.columns = pd.MultiIndex.from_product([['BE'], re.columns])
+    re.columns = pd.MultiIndex.from_product([['FHG'], re.columns])
     return re
 
 
 def scenario_feedin(year):
-    return coastdat.scenario_feedin(year, 'BE')
+    df = coastdat.scenario_feedin(year, 'BE')
+    df.columns = df.columns.set_levels(['FHG'], level=0)
+    return df
 
 
 def commodity_sources(year):
@@ -256,6 +258,7 @@ def solar_potential():
     perform_factor = gdf_sum.STRMIT_TOT / (gdf_sum.AREA_KOR * str_max)
 
     print('Area:', int(gdf_sum.AREA_KOR), 'm²')
+    print('Power:', int(gdf_sum.AREA_KOR) / 6, 'kWp')
     print('Overall performance:', round(perform_factor, 2))
 
 
@@ -303,12 +306,13 @@ def main(year):
 
 def create_basic_scenario(year):
     table_collection = create_scenario(year)
-    name = 'friedrichshagen_basic'
+    name = '{0}_{1}_{2}'.format('friedrichshagen', year, 'single')
     sce = scenario_tools.Scenario(table_collection=table_collection,
                                   name=name, year=year)
     path = os.path.join(cfg.get('paths', 'scenario'), str(year))
-    sce.to_excel(os.path.join(path, '_'.join([sce.name, str(year)]) + '.xls'))
-    sce.to_csv(os.path.join(path, 'csv', name))
+    print(os.path.join(path, name + '.xls'))
+    sce.to_excel(os.path.join(path, name + '.xls'))
+    sce.to_csv(os.path.join(path, '{0}_csv'.format(name)))
 
 
 if __name__ == "__main__":
@@ -335,6 +339,8 @@ if __name__ == "__main__":
 
     logger.define_logging()
     start = datetime.now()
+    solar_potential()
+    exit(0)
     for y in [2014, 2013, 2012]:
         main(y)
         mesg = "Basic scenario for {0} created: {1}"
