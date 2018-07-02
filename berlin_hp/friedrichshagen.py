@@ -264,13 +264,13 @@ def solar_potential():
 
 def main(year):
     stopwatch()
-
-    sc = Scenario(name='friedrichshagen_basic', year=year, debug=False)
+    name = '{0}_{1}_{2}'.format('friedrichshagen', year, 'single')
+    sc = Scenario(name=name, year=year, debug=False)
 
     path = os.path.join(cfg.get('paths', 'scenario'), str(year))
 
     logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
-    excel_fn = os.path.join(path, '_'.join([sc.name, str(year)]) + '.xls')
+    excel_fn = os.path.join(path, name + '.xls')
 
     if not os.path.isfile(excel_fn):
         create_basic_scenario(year)
@@ -279,7 +279,9 @@ def main(year):
     sc.check_table('time_series')
 
     logging.info("Add nodes to the EnergySystem: {0}".format(stopwatch()))
-    sc.add_nodes2solph()
+    sc.es = sc.initialise_energy_system()
+    nodes = sc.create_nodes(region='FHG')
+    sc.es.add(*nodes.values())
 
     # Save energySystem to '.graphml' file.
     sc.plot_nodes(filename=os.path.join(path, 'friedrichshagen'),
@@ -339,8 +341,8 @@ if __name__ == "__main__":
 
     logger.define_logging()
     start = datetime.now()
-    solar_potential()
-    exit(0)
+    # solar_potential()
+    # exit(0)
     for y in [2014, 2013, 2012]:
         main(y)
         mesg = "Basic scenario for {0} created: {1}"
