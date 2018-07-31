@@ -1,6 +1,6 @@
 import os
 import logging
-from  datetime import datetime
+from datetime import datetime
 
 import pandas as pd
 import geopandas as gpd
@@ -103,7 +103,7 @@ def scenario_powerplants(year, ts):
 
 def scenario_volatile_sources():
     re = pd.DataFrame()
-    re.loc['capacity', 'Wind'] = 0
+    re.loc['capacity', 'Wind'] = 0.001
     re.loc['capacity', 'Solar'] = installed_pv_capacity()
     re.columns = pd.MultiIndex.from_product([['FHG'], re.columns])
     return re
@@ -262,17 +262,17 @@ def solar_potential():
     print('Overall performance:', round(perform_factor, 2))
 
 
-def main(year):
+def main(year, overwrite=False):
     stopwatch()
     name = '{0}_{1}_{2}'.format('friedrichshagen', year, 'single')
     sc = Scenario(name=name, year=year, debug=False)
 
-    path = os.path.join(cfg.get('paths', 'scenario'), str(year))
+    path = os.path.join(cfg.get('paths', 'scenario'), 'friedrichshagen')
 
     logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
     excel_fn = os.path.join(path, name + '.xls')
 
-    if not os.path.isfile(excel_fn):
+    if not os.path.isfile(excel_fn) or overwrite:
         create_basic_scenario(year)
 
     sc.load_excel(excel_fn)
@@ -306,15 +306,23 @@ def main(year):
             stopwatch()))
 
 
-def create_basic_scenario(year):
+def create_basic_scenario(year, excel=None):
     table_collection = create_scenario(year)
+
     name = '{0}_{1}_{2}'.format('friedrichshagen', year, 'single')
+
     sce = scenario_tools.Scenario(table_collection=table_collection,
                                   name=name, year=year)
-    path = os.path.join(cfg.get('paths', 'scenario'), str(year))
-    print(os.path.join(path, name + '.xls'))
-    sce.to_excel(os.path.join(path, name + '.xls'))
-    sce.to_csv(os.path.join(path, '{0}_csv'.format(name)))
+    path = os.path.join(cfg.get('paths', 'scenario'), 'friedrichshagen')
+    if excel is None:
+        excel = os.path.join(path, name + '.xls')
+        csv_path = os.path.join(path, '{0}_csv'.format(name))
+    else:
+        csv_path = excel[:-4] + '_csv'
+    os.makedirs(csv_path, exist_ok=True)
+
+    sce.to_excel(excel)
+    sce.to_csv(csv_path)
 
 
 if __name__ == "__main__":
@@ -343,8 +351,9 @@ if __name__ == "__main__":
     start = datetime.now()
     # solar_potential()
     # exit(0)
+    overwrite = False
     for y in [2014, 2013, 2012]:
-        main(y)
+        main(y, overwrite=overwrite)
         mesg = "Basic scenario for {0} created: {1}"
         logging.info(mesg.format(y, datetime.now() - start))
     logging.info("Done: {0}".format(datetime.now() - start))
