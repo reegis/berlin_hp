@@ -43,13 +43,13 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
         nodes = reegis_tools.scenario_tools.NodeDict()
 
     # Global commodity sources
-    cs = table_collection['commodity_sources']['DE']
+    cs = table_collection['commodity_sources']['BE']
     for fuel in cs.columns:
-        bus_label = Label('bus', 'commodity', fuel.replace(' ', '_'), 'DE')
+        bus_label = Label('bus', 'commodity', fuel.replace(' ', '_'), 'BE')
         if bus_label not in nodes:
             nodes[bus_label] = solph.Bus(label=bus_label)
 
-        cs_label = Label('source', 'commodity', fuel.replace(' ', '_'), 'DE')
+        cs_label = Label('source', 'commodity', fuel.replace(' ', '_'), 'BE')
         if cs_label not in nodes:
             nodes[cs_label] = solph.Source(
                 label=cs_label, outputs={nodes[bus_label]: solph.Flow(
@@ -78,7 +78,6 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
                 msg = "Missing time series for {0} (capacity: {1}) in {2}."
                 raise ValueError(msg.format(vs_type, capacity, region))
         if capacity * sum(feedin) > 0:
-            print(capacity * sum(feedin))
             nodes[vs_label] = solph.Source(
                 label=vs_label,
                 outputs={nodes[elec_bus_label]: solph.Flow(
@@ -92,7 +91,7 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
         if src == 'elec':
             bus_label = elec_bus_label
         else:
-            bus_label = Label('bus', 'commodity', src.replace(' ', '_'), 'DE')
+            bus_label = Label('bus', 'commodity', src.replace(' ', '_'), 'BE')
 
         # Check if source bus exists
         if bus_label not in nodes:
@@ -168,7 +167,7 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
             src = ext[0][1].replace(' ', '_')
             if src in fuel_dict:
                 src = fuel_dict[src]
-            src_bus_label = Label('bus', 'commodity', src, 'DE')
+            src_bus_label = Label('bus', 'commodity', src, 'BE')
             heat_bus_label = Label('bus', 'heat', 'district', heat_sys)
             chp_label = Label('chp', 'ext', src, heat_sys)
 
@@ -193,7 +192,7 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
             src = fix[0][1].replace(' ', '_')
             if src in fuel_dict:
                 src = fuel_dict[src]
-            src_bus_label = Label('bus', 'commodity', src, 'DE')
+            src_bus_label = Label('bus', 'commodity', src, 'BE')
             heat_bus_label = Label('bus', 'heat', 'district', heat_sys)
             chp_label = Label('chp', 'fix', src, heat_sys)
 
@@ -220,7 +219,7 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
             if src == 'electricity':
                 src_bus_label = Label('bus', 'electricity', 'all', 'BE')
             else:
-                src_bus_label = Label('bus', 'commodity', src, 'DE')
+                src_bus_label = Label('bus', 'commodity', src, 'BE')
             heat_bus_label = Label('bus', 'heat', 'district', heat_sys)
             hp_label = Label('hp', 'heat', src, heat_sys)
 
@@ -240,7 +239,7 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
             src = pp[0][1].replace(' ', '_')
             if src in fuel_dict:
                 src = fuel_dict[src]
-            src_bus_label = Label('bus', 'commodity', src, 'DE')
+            src_bus_label = Label('bus', 'commodity', src, 'BE')
             pp_label = Label('pp', 'electricity', src, heat_sys)
 
             bel = nodes[elec_bus_label]

@@ -128,7 +128,7 @@ def commodity_sources(year):
 
     # Add region level to be consistent to other tables
     commodity_src.columns = pd.MultiIndex.from_product(
-        [['DE'], commodity_src.columns])
+        [['BE'], commodity_src.columns])
 
     return commodity_src
 
