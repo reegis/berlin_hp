@@ -34,12 +34,13 @@ def stopwatch():
 def main(year):
     stopwatch()
 
-    sc = berlin_hp.Scenario(name='berlin_basic', year=year, debug=False)
+    sc = berlin_hp.Scenario(name='berlin_hp', year=year, debug=False)
 
-    path = os.path.join(cfg.get('paths', 'scenario'), str(year))
+    path = os.path.join(cfg.get('paths', 'scenario'), 'berlin_hp', str(year))
 
     logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
-    excel_fn = os.path.join(path, '_'.join([sc.name, str(year)]) + '.xls')
+    excel_fn = os.path.join(
+        path, '_'.join(['berlin_hp', str(year), 'single']) + '.xls')
 
     if not os.path.isfile(excel_fn):
         berlin_hp.basic_scenario.create_basic_scenario(year)
