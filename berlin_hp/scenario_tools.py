@@ -147,12 +147,8 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
     pp = table_collection['powerplants'][region].copy()
 
     pp = pp.fillna(0)
-    pp['capacity_in'] = (pp.capacity_elec + pp.capacity_heat) / pp.efficiency
-    pp['eff_cond_elec'] = pp.capacity_elec / pp.capacity_in
-    pp['eff_chp_heat'] = pp.capacity_heat / pp.capacity_in
-    pp['capacity_elec_chp'] = (pp.eff_cond_elec - pp.elec_loss_factor *
-                               pp.eff_chp_heat) * pp.capacity_in
-    pp['eff_chp_elec'] = pp.capacity_elec_chp / pp.capacity_in
+    pp['capacity_in'] = (
+        pp.capacity_elec_chp + pp.capacity_heat) / pp.efficiency
     pp = pp.groupby(['type', 'network', 'fuel']).sum()
     pp['eff_cond_elec'] = pp.capacity_elec / pp.capacity_in
     pp['eff_chp_heat'] = pp.capacity_heat / pp.capacity_in
