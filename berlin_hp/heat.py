@@ -26,8 +26,10 @@ import demandlib.bdew as bdew
 from reegis_tools import config as cfg
 import reegis_tools.energy_balance
 import reegis_tools.coastdat
+import reegis_tools.heat_demand
 import reegis_tools.energy_balance
 import reegis_tools.geometries
+import reegis_tools.bmwi
 import berlin_hp.my_open_e_quarter
 
 
@@ -228,7 +230,8 @@ def get_end_energy_data(year, state='BE'):
     """End energy demand from energy balance (reegis_tools)
     """
     filename_heat_reference = os.path.join(
-        cfg.get('paths', 'oeq'), 'heat_reference_TJ_{0}.csv'.format(year))
+        cfg.get('paths', 'oeq'), 'heat_reference_TJ_{0}_{1}.csv'.format(
+            year, state))
 
     if not os.path.isfile(filename_heat_reference):
         eb = reegis_tools.energy_balance.get_states_balance(
@@ -253,7 +256,7 @@ def get_district_heating_areas():
     dh_filename = os.path.join(
         cfg.get('paths', 'data_berlin'),
         cfg.get('district_heating', 'map_district_heating_areas'))
-    distr_heat_areas = pd.read_csv(dh_filename)
+    distr_heat_areas = pd.read_csv(dh_filename, index_col=[0])
 
     # Replace alphanumeric code from block id
     distr_heat_areas['gml_id'] = distr_heat_areas['gml_id'].str.replace(
@@ -285,29 +288,16 @@ def create_standardised_heat_load_profile(shlp, year):
     cal = Germany()
     holidays = dict(cal.holidays(year))
 
-    fuel_list = shlp[list(shlp.keys())[0]]['demand'].index
-
-    profile_fuel = pd.DataFrame()
-    for fuel in fuel_list:
-        fuel_name = fuel.replace('frac_', '')
-        profile_type = pd.DataFrame()
-        for shlp_type in shlp.keys():
-            shlp_name = str(shlp_type)
-            profile_type[fuel_name + '_' + shlp_name] = bdew.HeatBuilding(
-                temperature.index, holidays=holidays, temperature=temperature,
-                shlp_type=shlp_type, wind_class=0,
-                building_class=shlp[shlp_type]['build_class'],
-                annual_heat_demand=shlp[shlp_type]['demand'][fuel],
-                name=fuel_name + shlp_name, ww_incl=True).get_bdew_profile()
-
-        # for district heating the systems the profile will not be summed up
-        # but kept as different profiles ('district_heating_' + shlp_name).
-        if fuel_name == 'district_heating':
-            for n in profile_type.columns:
-                profile_fuel[n] = profile_type[n]
-        else:
-            profile_fuel[fuel_name] = profile_type.sum(axis=1)
-    return profile_fuel
+    profile_type = pd.DataFrame()
+    for shlp_type in shlp.keys():
+        shlp_name = str(shlp_type)
+        profile_type[shlp_name] = bdew.HeatBuilding(
+            temperature.index, holidays=holidays, temperature=temperature,
+            shlp_type=shlp_type, wind_class=0,
+            building_class=shlp[shlp_type]['build_class'],
+            annual_heat_demand=1000,
+            name=shlp_name, ww_incl=True).get_bdew_profile()
+    return profile_type
 
 
 def create_heat_profiles(year, region='berlin'):
@@ -328,7 +318,7 @@ def create_heat_profiles(year, region='berlin'):
     pandas.DataFrame
 
     """
-    logging.info("Starting...")
+    logging.info("Creating heat profiles...")
 
     # allocation of district heating systems (map) to groups (model)
     district_heating_groups = cfg.get_dict('district_heating_systems')
@@ -359,51 +349,118 @@ def create_heat_profiles(year, region='berlin'):
     data = data.merge(heat_factor, left_on='building_function',
                       right_index=True)
 
+    data = data[['block', 'lor', 'frac_elec', 'frac_district_heating',
+                 'frac_gas', 'frac_oil', 'frac_coal', 'HLAC', 'HLAP', 'AHDC',
+                 'AHDP', 'my_total', 'check', 'gml_id', 'STIFT',
+                 'heat_factor', 'ghd', 'mfh']]
+
     data['total'] = data['my_total']
     # Multiply the heat demand of the buildings with the heat factor
     data['total'] *= data['heat_factor']
 
     # Level the overall heat demand with the heat demand from the energy
-    # balance
-    end_energy_table = get_end_energy_data(year)
+    # balance. Get energy balance first.
+    end_energy_table = reegis_tools.heat_demand.heat_demand(year).loc['BE']
 
-    factor = (end_energy_table.loc['total', 'district heating'] /
-              (data['total'].sum() / 1000 / 1000))
+    # bmwi_table = reegis_tools.bmwi.read_bmwi_sheet_7()
+    tab_a = reegis_tools.bmwi.read_bmwi_sheet_7('a')
+    tab_b = reegis_tools.bmwi.read_bmwi_sheet_7('b')
 
-    if region == 'berlin':
-        cfg.tmp_set('oeq', 'oeq_balance_factor', str(factor))
-    else:
-        factor = cfg.get('oeq', 'oeq_balance_factor')
+    # calculate the fraction of process energy and building heat (with dhw)
+    heat_process = {}
+    p = 'sonstige Prozesswärme'
+    r = 'Raumwärme'
+    w = 'Warmwasser'
 
-    data['total'] = data['total'] * factor
+    s = 'private Haushalte'
+    heat_process['domestic'] = (tab_b.loc[(s, p, p), year] / (
+            tab_b.loc[(s, p, p), 2014] +
+            tab_b.loc[(s, r, r), 2014] +
+            tab_b.loc[(s, w, w), 2014]))
 
-    # Todo: Prozesswärme
+    s = 'Gewerbe, Handel, Dienstleistungen '
+    heat_process['retail'] = (tab_b.loc[(s, p, p), year] / (
+            tab_b.loc[(s, p, p), 2014] +
+            tab_b.loc[(s, r, r), 2014] +
+            tab_b.loc[(s, w, w), 2014]))
+    s = 'Industrie'
+    heat_process['industrial'] = (tab_a.loc[(s, p, p), year] / (
+        tab_a.loc[(s, p, p), 2014] +
+        tab_a.loc[(s, r, r), 2014] +
+        tab_a.loc[(s, w, w), 2014]))
+
+    # multiply the energy balance with the building/process fraction
+    profile_type = pd.DataFrame(columns=end_energy_table.columns)
+    profile_type.loc['process'] = 0
+    profile_type.loc['building'] = 0
+    for key in end_energy_table.index:
+        profile_type.loc['process'] += (
+                end_energy_table.loc[key] * heat_process[key] / 3.6 * 1000000)
+        profile_type.loc['building'] += (
+                end_energy_table.loc[key] * (1 - heat_process[key]) /
+                3.6 * 1000000)
+
+    # remove values below 1% and add it to the other values proportionally
+    for pt in profile_type.index:
+        s = profile_type.loc[pt].sum()
+        r = 0
+        for col in profile_type.columns:
+            if profile_type.loc[pt, col] / s < 0.015:
+                r += profile_type.loc[pt, col]
+                profile_type.loc[pt, col] = 0
+        s = profile_type.loc[pt].sum()
+        profile_type.loc[pt] = (
+                profile_type.loc[pt] + profile_type.loc[pt].div(s).multiply(r))
 
     # Create a dictionary for each demand profile group
     shlp = {'ghd': {'build_class': 0},
             'mfh': {'build_class': 1}}
+    fuels = []
 
-    # Add the annual demand to the profile dictionary.
+    # Create a table with absolute heat demand for each fuel and each sector
+    # Industrial building heat will be treated as retail
     frac_cols = [x for x in data.columns if 'frac_' in x]
-    for t in shlp.keys():
-        # Multiply fraction columns with total heat demand to get the total
-        # demand for each fuel type
-        shlp[t]['demand'] = data[frac_cols].multiply(data['total'] * data[t],
-                                                     axis=0).sum()
+    two_level_columns = pd.MultiIndex(levels=[[], []], labels=[[], []])
+    abs_data = pd.DataFrame(index=data.index, columns=two_level_columns)
+    for col in frac_cols:
+        for t in ['ghd', 'mfh']:
+            c = col.replace('frac_', '').replace('_', ' ').replace(
+                'gas', 'natural gas')
+            abs_data[c, t] = data[col].multiply(data['total'] *
+                                                data[t], axis=0)
 
-    # Create the standardised heat load profiles (shlp) for each group
-    heat_profiles = create_standardised_heat_load_profile(shlp, year)
+    # Calculate a reduction factor for each fuel type. As there is no data
+    # of electricity used for heating purpose an overall factor is used for
+    # electricity.
+    factor = {'elec': (profile_type.loc['building'].sum() /
+                       abs_data.sum().sum())}
+    for fuel in abs_data.columns.get_level_values(0).unique():
+        if fuel not in factor and fuel in profile_type.columns:
+            factor[fuel] = (profile_type.loc['building', fuel] /
+                            abs_data[fuel].sum().sum())
+        elif fuel not in factor and fuel not in profile_type.columns:
+            factor[fuel] = 0
+        abs_data[fuel] *= factor[fuel]
+        if abs_data[fuel].sum().sum() > 0:
+            fuels.append(fuel)
+
+    # Create normalised heat load profiles (shlp) for each sector
+    norm_heat_profiles = create_standardised_heat_load_profile(shlp, year)
+
+    heat_profiles = pd.DataFrame(index=norm_heat_profiles.index,
+                                 columns=two_level_columns)
 
     # Create a summable column for each demand group for district heating
-    cols = []
-    for shlp_type in shlp.keys():
-        name = 'district_' + shlp_type
-        data[name] = (data['frac_district_heating'] *
-                      data[shlp_type] * data['total'])
-        cols.append(name)
+    for fuel in fuels:
+        for sector in shlp.keys():
+            heat_profiles[fuel, sector] = norm_heat_profiles[sector].multiply(
+                abs_data[fuel, sector].sum())
+            if fuel in profile_type.columns:
+                heat_profiles[fuel, sector] += (
+                    profile_type.loc['process', fuel] / len(heat_profiles) / 2)
 
     # Group district heating by district heating systems (STIFT = id)
-    district_by_stift = data.groupby('STIFT').sum()[cols]
+    district_by_stift = data.groupby('STIFT').sum()
 
     # Create translation Series with STIFT (numeric) and KLASSENNAM (text)
     stift2name = distr_heat_areas.groupby(
@@ -423,15 +480,13 @@ def create_heat_profiles(year, region='berlin'):
 
     # Create standardised heat load profile for each group
     for nr in frac_district_groups.index:
-        heat_profiles[nr] = (
-            (heat_profiles['district_heating_mfh'] *
-             frac_district_groups.loc[nr, 'district_mfh']) +
-            (heat_profiles['district_heating_ghd'] *
-             frac_district_groups.loc[nr, 'district_ghd']))
-    del heat_profiles['district_heating_ghd']
-    del heat_profiles['district_heating_mfh']
+        for sector in shlp.keys():
+            heat_profiles[nr, sector] = (
+                heat_profiles['district heating', sector] *
+                frac_district_groups.loc[nr, 'frac_district_heating'])
 
-    # Returns MW
+    heat_profiles = heat_profiles.groupby(level=0, axis=1).sum()
+    del heat_profiles['district heating']
 
     return heat_profiles.div(1000)
 
@@ -452,5 +507,5 @@ if __name__ == "__main__":
     #                 remove_string1))
     # print(dissolve(my_data, 'bezirk', ['my_total']))
     print(create_heat_profiles(2014).sum())
-    print(cfg.get('oeq', 'oeq_balance_factor'))
+    # print(cfg.get('oeq', 'oeq_balance_factor'))
     print(create_heat_profiles(2014, region=90517).sum())
