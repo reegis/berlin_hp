@@ -457,7 +457,8 @@ def create_heat_profiles(year, region='berlin'):
                 abs_data[fuel, sector].sum())
             if fuel in profile_type.columns:
                 heat_profiles[fuel, sector] += (
-                    profile_type.loc['process', fuel] / len(heat_profiles) / 2)
+                    profile_type.loc['process', fuel] / len(heat_profiles) /
+                    len(list(shlp.keys())) * 1000)
 
     # Group district heating by district heating systems (STIFT = id)
     district_by_stift = data.groupby('STIFT').sum()
@@ -488,7 +489,7 @@ def create_heat_profiles(year, region='berlin'):
     heat_profiles = heat_profiles.groupby(level=0, axis=1).sum()
     del heat_profiles['district heating']
 
-    return heat_profiles.div(1000)
+    return heat_profiles.div(1000000)
 
 
 if __name__ == "__main__":
