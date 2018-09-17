@@ -10,6 +10,9 @@ __copyright__ = "Uwe Krien <uwe.krien@rl-institut.de>"
 __license__ = "GPLv3"
 
 from collections import namedtuple
+import logging
+
+import numpy as np
 
 # oemof libraries
 import oemof.tools.logger as logger
@@ -150,7 +153,7 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
     pp['capacity_in'] = (
         pp.capacity_elec_chp + pp.capacity_heat) / pp.efficiency
     pp = pp.groupby(['type', 'network', 'fuel']).sum()
-    pp['eff_cond_elec'] = pp.capacity_elec / pp.capacity_in
+    pp['eff_cond_elec'] = pp.capacity_elec_cond / pp.capacity_in
     pp['eff_chp_heat'] = pp.capacity_heat / pp.capacity_in
     pp['eff_chp_elec'] = pp.capacity_elec_chp / pp.capacity_in
     district_heating_systems = cfg.get_dict('district_heating_systems')
@@ -159,6 +162,7 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
     # Create chp plants with extraction turbine
     if 'EXT' in pp.index:
         for ext in pp.loc['EXT'].iterrows():
+            check_input_data(ext, 'EXT')
             heat_sys = district_heating_systems[ext[0][0]]
             src = ext[0][1].replace(' ', '_')
             if src in fuel_dict:
@@ -184,6 +188,8 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
     # Create chp plants with fixed heat ratio (e.g. backpressure)
     if 'FIX' in pp.index:
         for fix in pp.loc['FIX'].iterrows():
+            check_input_data(fix, 'FIX', ignore=['eff_cond_elec',
+                                                 'capacity_elec_cond'])
             heat_sys = district_heating_systems[fix[0][0]]
             src = fix[0][1].replace(' ', '_')
             if src in fuel_dict:
@@ -207,6 +213,9 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
     # Create heat plants (hp) without power production
     if 'HP' in pp.index:
         for hp in pp.loc['HP'].iterrows():
+            check_input_data(hp, 'HP', ignore=[
+                'eff_cond_elec', 'capacity_elec_cond',
+                'eff_chp_elec', 'capacity_elec_chp'])
             heat_sys = district_heating_systems[hp[0][0]]
             src = hp[0][1].replace(' ', '_')
             if src in fuel_dict:
@@ -231,6 +240,10 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
     # Create power plants without heat extraction
     if 'PP' in pp.index:
         for pp in pp.loc['PP'].iterrows():
+            check_input_data(pp, 'PP', ignore=[
+                'eff_chp_heat', 'capacity_heat',
+                'eff_chp_elec', 'capacity_elec_chp',
+                'eff_cond_elec', 'capacity_in'])
             heat_sys = district_heating_systems[pp[0][0]]
             src = pp[0][1].replace(' ', '_')
             if src in fuel_dict:
@@ -244,7 +257,7 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
                 label=pp_label,
                 inputs={nodes[src_bus_label]: solph.Flow()},
                 outputs={bel: solph.Flow(
-                    nominal_value=pp[1].capacity_elec)},
+                    nominal_value=pp[1].capacity_elec_cond)},
                 conversion_factors={bel: pp[1].efficiency})
 
     # # Storages
@@ -285,6 +298,19 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
                 label=shortage_label,
                 outputs={nodes[key]: solph.Flow(variable_costs=9000)})
     return nodes
+
+
+def check_input_data(data, section, ignore=None):
+    if ignore is None:
+        ignore = []
+    meta = data[0]
+    data = data[1]
+    data = data.replace([np.inf, -np.inf], np.nan)
+    c = set(data[(data.isnull()) | (data == 0)].index) - set(ignore)
+    if len(c) > 0:
+        logging.warning(
+            "Some data in section {0} is missing or '0' for {1}: {2}".format(
+                section, meta, list(c)))
 
 
 if __name__ == "__main__":

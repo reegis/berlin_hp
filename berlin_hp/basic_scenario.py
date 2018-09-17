@@ -75,7 +75,7 @@ def scenario_powerplants(year, ts):
 
     # decentralised CHP blocks
     pp.loc['decentralised CHP-blocks', ('BE', 'fuel')] = 'natural_gas'
-    pp.loc['decentralised CHP-blocks', ('BE', 'capacity_elec')] = round(
+    pp.loc['decentralised CHP-blocks', ('BE', 'capacity_elec_chp')] = round(
         heat_capacity * (1 - share_hp_chp) / eff_chp_heat * eff_chp_elec)
     pp.loc['decentralised CHP-blocks', ('BE', 'capacity_heat')] = round(
         heat_capacity * (1 - share_hp_chp))

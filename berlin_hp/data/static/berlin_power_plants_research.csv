@@ -5,41 +5,41 @@ Moabit A ,1990,2030,hard coal,,100,136,86,0.85,EXT,FL_Vattenfall_1,AvR
 Moabit GT ,1971,2020,oil,,51,,,0.4,PP,FL_Vattenfall_1,AvR
 Moabit HWE ,1987,2030,oil,,,105,,0.91,HP,FL_Vattenfall_1,AvR
 Reuter C ,1969,2020,hard coal,,132,144,114,0.76,EXT,FL_Vattenfall_1,AvR
-Reuter M ,1998,2040,waste,,36,100,,0.9,FIX,FL_Vattenfall_1,AvR
+Reuter M ,1998,2040,waste,,,100,36,0.9,FIX,FL_Vattenfall_1,AvR
 Reuter West D ,1987,2030,hard coal,,300,363,254,0.76,EXT,FL_Vattenfall_1,AvR
 Reuter West E ,1988,2030,hard coal,,300,363,254,0.76,EXT,FL_Vattenfall_1,AvR
-Charlottenburg ,2000,2025,natural gas,,211,295,,0.94,FIX,FL_Vattenfall_1,AvR
-Wilmersdorf ,1977,2020,oil,,276,330,,0.86,FIX,FL_Vattenfall_1,AvR
-Lichterfelde GT 1 ,1972,2016,natural gas,,144,240,,0.93,FIX,FL_Vattenfall_1,AvR
-Lichterfelde GT 2 ,1974,2017,natural gas,,144,240,,0.93,FIX,FL_Vattenfall_1,AvR
-Lichterfelde GT 3 ,1973,2018,natural gas,,144,240,,0.93,FIX,FL_Vattenfall_1,AvR
+Charlottenburg ,2000,2025,natural gas,,,295,211,0.94,FIX,FL_Vattenfall_1,AvR
+Wilmersdorf ,1977,2020,oil,,,330,276,0.86,FIX,FL_Vattenfall_1,AvR
+Lichterfelde GT 1 ,1972,2016,natural gas,,,240,144,0.93,FIX,FL_Vattenfall_1,AvR
+Lichterfelde GT 2 ,1974,2017,natural gas,,,240,144,0.93,FIX,FL_Vattenfall_1,AvR
+Lichterfelde GT 3 ,1973,2018,natural gas,,,240,144,0.93,FIX,FL_Vattenfall_1,AvR
 Lichterfelde GuD ,2016,2045,natural gas,,300,230,253,0.97,EXT,FL_Vattenfall_1,AvR
 Lichterfelde HWE ,2014,2045,natural gas,,,360,,0.91,HP,FL_Vattenfall_1,AvR
-Klingenberg ,1981,2017,lignite,,164,590,,0.8,FIX,FL_Vattenfall_2,AvR
-Klingenberg ,2017,2047,natural gas,,164,590,,,FIX,FL_Vattenfall_2,AvR
-Klingenberg ,2017,2047,natural gas,,,590,,,HP,FL_Vattenfall_2,AvR
+Klingenberg ,1981,2017,lignite,,,590,164,0.8,FIX,FL_Vattenfall_2,AvR
+Klingenberg ,2017,2047,natural gas,,,590,164,,FIX,FL_Vattenfall_2,AvR
+Klingenberg ,2017,2047,natural gas,,,590,164,,FIX,FL_Vattenfall_2,AvR
 Mahrzahn GuD ,2020,2050,natural gas,,300,230,253,0.97,EXT,FL_Vattenfall_2,AvR
 Mitte GuD ,1996,2025,natural gas,,460,430,374,0.99,EXT,FL_Vattenfall_2,AvR
 Mitte HWE ,1996,2025,natural gas,,,240,,0.91,HP,FL_Vattenfall_2,AvR
 Scharnhorststr Dampf ,1979,2018,natural gas,,,50,,0.91,HP,FL_Vattenfall_2,AvR
 Scharnhorststr HWE ,2013,2045,natural gas,,,111,,0.91,HP,FL_Vattenfall_2,AvR
-Scharnhorststr BHKW ,2010,2018,natural gas,,0.6,0.6,,0.83,FIX,FL_Vattenfall_2,AvR
-Scharnhorststr GT ,2018,2050,natural gas,,11.7,17.5,,0.81,FIX,FL_Vattenfall_2,AvR
+Scharnhorststr BHKW ,2010,2018,natural gas,,,0.6,0.6,0.83,FIX,FL_Vattenfall_2,AvR
+Scharnhorststr GT ,2018,2050,natural gas,,,17.5,11.7,0.81,FIX,FL_Vattenfall_2,AvR
 Scharnhorststr GT ZF ,2018,2050,natural gas,,,47.5,,0.91,HP,FL_Vattenfall_2,AvR
 FW Neukölln HWE I-III,1969,2025,hard coal,,,71,,0.9,HP,FL_HWNK,http://www.fhw-neukoelln.de/files_db/1447337275_5778__5.pdf
 FW Neukölln HWE IV-IX,1969,2025,oil,natural gas,,53.7,,0.92,HP,FL_HWNK,http://www.fhw-neukoelln.de/files_db/1447337275_5778__5.pdf
-FW Neukölln BHKW 1-7,2013,2035,natural gas,,9.568,10.452,,0.88,FIX,FL_HWNK,http://www.fhw-neukoelln.de/files_db/1447337275_5778__5.pdf
+FW Neukölln BHKW 1-7,2013,2035,natural gas,,,10.452,9.568,0.88,FIX,FL_HWNK,http://www.fhw-neukoelln.de/files_db/1447337275_5778__5.pdf
 FW Neukölln PtH,2015,2045,electricity,,,10,,1,HP,FL_HWNK,http://www.fhw-neukoelln.de/files_db/1447337275_5778__5.pdf
-BTB Adlershof BHKW,2010,2035,natural gas,,13,16,,0.88,FIX,FL_BTB,http://www.btb-berlin.de
+BTB Adlershof BHKW,2010,2035,natural gas,,,16,13,0.88,FIX,FL_BTB,http://www.btb-berlin.de
 BTB Adlershof HWE,2010,2035,oil,natural gas,,80,,0.92,HP,FL_BTB,http://www.btb-berlin.de
 BTB Adlershof PtH,2012,2035,electricity,,,6,,1,HP,FL_BTB,http://www.btb-berlin.de
-BTB Schöneweide DT,2004,2032,hard coal,,9.6,16,,0.85,FIX,FL_BTB,http://www.btb-berlin.de
+BTB Schöneweide DT,2004,2032,hard coal,,,16,9.6,0.85,FIX,FL_BTB,http://www.btb-berlin.de
 BTB Schöneweide HEW,1992,2032,hard coal,,,20,,0.9,HP,FL_BTB,http://www.btb-berlin.de
-Märkisches Viertel DT,2013,2045,biomass,,5,18,,0.85,FIX,FL_HWMV,
-BHKW Lange Enden,2010,2040,natural gas,,8.8,10,,0.85,FIX,FL_HWMV,
+Märkisches Viertel DT,2013,2045,biomass,,,18,5,0.85,FIX,FL_HWMV,
+BHKW Lange Enden,2010,2040,natural gas,,,10,8.8,0.85,FIX,FL_HWMV,
 Märkisches Viertel HWE,2000,2050,natural gas,,,20,,0.9,HP,FL_HWMV,
-Buch GT,2013,2050,natural gas,,5,6.5,,0.9,FIX,FL_Vattenfall_Buch,
+Buch GT,2013,2050,natural gas,,,6.5,5,0.9,FIX,FL_Vattenfall_Buch,
 Buch HWE,2000,2050,natural gas,,,125.5,,0.9,HP,FL_Vattenfall_Buch,
-Friedrichshagen BHKW,2003,2033,natural gas,,0.8,0.8,,0.8,FIX,FL_Vattenfall_Friedrichsh,https://www.energie-und-management.de/free-archive/feview3/12192
+Friedrichshagen BHKW,2003,2033,natural gas,,,0.8,0.8,0.8,FIX,FL_Vattenfall_Friedrichsh,https://www.energie-und-management.de/free-archive/feview3/12192
 Friedrichshagen HWE,1998,2038,natural gas,,,27.9,,0.9,HP,FL_Vattenfall_Friedrichsh,https://www.energie-und-management.de/free-archive/feview3/12192
-Köpenick BHKW,1992,2030,natural gas,,10,18.6,,0.88,FIX,FL_Vattenfall_Koepenick,
+Köpenick BHKW,1992,2030,natural gas,,,18.6,10,0.88,FIX,FL_Vattenfall_Koepenick,
