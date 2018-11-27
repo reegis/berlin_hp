@@ -162,7 +162,7 @@ def decentralised_heating():
 
 def scenario_heat_profiles(year, ts, basic_scenario=True):
     # First calculate the heat demand for Berlin to get the scaling factor
-    heat.create_heat_profiles(year)
+    # heat.create_heat_profiles(year)
     logging.debug("Scaling factor of the heat demand: {0}".format(
         cfg.get('oeq', 'oeq_balance_factor')))
     df = heat.create_heat_profiles(year, region=90517)
@@ -216,19 +216,35 @@ def get_inhabitants(polygon, name):
     return grp
 
 
+def calculate_inhabitants_friedrichshagen(year, geo=None):
+    if geo is None:
+        fhg_fn = os.path.join(
+            cfg.get('paths', 'geo_berlin'),
+            cfg.get('geometry', 'friedrichshagen_block'))
+        geo_fhg = geometries.load(fullname=fhg_fn, index_col='BZR_NAME')
+    else:
+        geo_fhg = geo
+
+    return get_inhabitants(geo_fhg, 'brz_name').loc[geo_fhg.index[0], 'EW']
+
+
+def calculate_inhabitants_districts(year, geo=None):
+    if geo is None:
+        berlin_district_fn = os.path.join(
+            cfg.get('paths', 'geo_berlin'),
+            cfg.get('geometry', 'berlin_bezirke'))
+        geo_bln = geometries.load(
+            fullname=berlin_district_fn, index_col='BEZIRK')
+    else:
+        geo_bln = geo
+
+    return get_inhabitants(geo_bln, 'bezirk')
+
+
 def calculate_elec_demand_friedrichshagen(year):
-    fhg_fn = os.path.join(
-        cfg.get('paths', 'geo_berlin'),
-        cfg.get('geometry', 'friedrichshagen_block'))
-    geo_fhg = geometries.load(fullname=fhg_fn, index_col='BZR_NAME')
-
-    fhg_ew = get_inhabitants(geo_fhg, 'brz_name').loc[geo_fhg.index[0], 'EW']
-
-    berlin_district_fn = os.path.join(
-        cfg.get('paths', 'geo_berlin'),
-        cfg.get('geometry', 'berlin_bezirke'))
-    geo_bln = geometries.load(fullname=berlin_district_fn, index_col='BEZIRK')
-    trp_koep_ew = get_inhabitants(geo_bln, 'bezirk').loc['09_TREP/KOEP', 'EW']
+    fhg_ew = calculate_inhabitants_friedrichshagen(year)
+    trp_koep_ew = calculate_inhabitants_districts(year).loc[
+        '09_TREP/KOEP', 'EW']
 
     elec_demand_trp_koep = electricity.get_electricity_demand(
         year, district='Treptow-Koepenick')['usage']
@@ -294,7 +310,8 @@ def main(year, overwrite=False):
     sc.solve()
 
     logging.info("Solved. Dump results: {0}".format(stopwatch()))
-    results_path = os.path.join(path, 'results')
+    results_path = os.path.join(path, 'results_{0}'.format(
+        cfg.get('general', 'solver')))
     if not os.path.isdir(results_path):
         os.mkdir(results_path)
     sc.dump_es(os.path.join(results_path,
