@@ -72,8 +72,7 @@ def convert_gml2shp(table):
     basic_call = 'ogr2ogr -f "ESRI Shapefile" {0} {1}'
     src_path = os.path.join(cfg.get('paths', 'fis_broker'), table)
     trg_path = os.path.join(src_path, 'shp')
-    if not os.path.isdir(trg_path):
-        os.mkdir(trg_path)
+    os.makedirs(trg_path, exist_ok=True)
     for f in sorted(os.listdir(src_path)):
         if '.gml' in f:
             logging.debug("Convert {0} to shp".format(f))
