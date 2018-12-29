@@ -163,8 +163,8 @@ def decentralised_heating():
 def scenario_heat_profiles(year, ts, basic_scenario=True):
     # First calculate the heat demand for Berlin to get the scaling factor
     # heat.create_heat_profiles(year)
-    logging.debug("Scaling factor of the heat demand: {0}".format(
-        cfg.get('oeq', 'oeq_balance_factor')))
+    # logging.debug("Scaling factor of the heat demand: {0}".format(
+    #     cfg.get('oeq', 'oeq_balance_factor')))
     df = heat.create_heat_profiles(year, region=90517)
 
     dc_name = 'decentralised_demand'
