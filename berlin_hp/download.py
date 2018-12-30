@@ -12,6 +12,7 @@ from reegis_tools import config as cfg
 import subprocess as sub
 import geopandas as gpd
 import logging
+from fiona import crs
 import oemof.tools.logger as logger
 from shutil import copyfile
 
@@ -117,10 +118,13 @@ def merge_shapefiles(path, table):
 def remove_duplicates(shp_file, id_col):
     logging.info("Removing duplicates in {0}".format(shp_file))
     geo_table = gpd.read_file(shp_file)
-    orig_crs = geo_table.crs
     geo_table = geo_table.drop_duplicates(id_col)
-    geo_table = geo_table.to_crs(orig_crs)
-    geo_table.to_file(shp_file)
+    geo_table.crs = crs.from_epsg(4326)
+    prj_file = shp_file.replace(".shp", ".prj")
+    prj = [l.strip() for l in open(prj_file, 'r')]
+    if len(prj) > 0:
+        prj = prj[0]
+    geo_table.to_file(shp_file, crs_wkt=prj)
     logging.info("Duplicates removed.")
 
 
