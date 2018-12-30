@@ -254,10 +254,17 @@ def calculate_elec_demand_friedrichshagen(year):
 
 
 def installed_pv_capacity():
-    table = 're_08_09_1pv_bzr2013'
+    table = cfg.get('pv_map', 'table')
     path = os.path.join(cfg.get('paths', 'fis_broker'), table, 'shp')
     shapefile = os.path.join(path, table + '.shp')
+    if not os.path.isfile(shapefile):
+        new_shapefile = download.download_maps(single='pv_map')
+        if new_shapefile != shapefile:
+            msg = "Wrong path will download this file every time {0} : {1}"
+            logging.error(msg.format(shapefile, new_shapefile))
+            shapefile = new_shapefile
     pv_cap = gpd.read_file(shapefile)
+    pv_cap['spatial_na'] = pv_cap['gml_id'].str.split('.', expand=True)[1]
     pv_cap.set_index('spatial_na', inplace=True)
     return round(pv_cap.loc['090517'].BZR_GLEIST / 1000, 3)
 
@@ -366,6 +373,8 @@ if __name__ == "__main__":
 
     logger.define_logging()
     start = datetime.now()
+    print(installed_pv_capacity())
+    exit(0)
     # solar_potential()
     # exit(0)
     overwrite = False
