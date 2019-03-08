@@ -24,8 +24,8 @@ import oemof.tools.logger as logger
 
 # internal modules
 import Open_eQuarterPy.building_evaluation as be
-from reegis_tools import config as cfg
-import reegis_tools.geometries
+from reegis import config as cfg
+import reegis.geometries
 import berlin_hp.download as download
 
 
@@ -157,7 +157,7 @@ def merge_maps():
     # Join the alkis data with the map of the heating system fraction
     logging.info("Join alkis buildings with heiz data...")
 
-    geoheiz_obj = reegis_tools.geometries.Geometry()
+    geoheiz_obj = reegis.geometries.Geometry()
     geoheiz_obj.load_csv(cfg.get('paths', 'data_berlin'),
                          cfg.get('fis_broker', 'heating_systems_csv'))
     geoheiz_obj.df = geoheiz_obj.df.loc[geoheiz_obj.df['geometry'].notnull()]

@@ -23,13 +23,13 @@ import oemof.tools.logger as logger
 import demandlib.bdew as bdew
 
 # internal modules
-from reegis_tools import config as cfg
-import reegis_tools.energy_balance
-import reegis_tools.coastdat
-import reegis_tools.heat_demand
-import reegis_tools.energy_balance
-import reegis_tools.geometries
-import reegis_tools.bmwi
+from reegis import config as cfg
+import reegis.energy_balance
+import reegis.coastdat
+import reegis.heat_demand
+import reegis.energy_balance
+import reegis.geometries
+import reegis.bmwi
 import berlin_hp.my_open_e_quarter
 
 
@@ -227,14 +227,14 @@ def dissolve(data, level, columns=None):
 
 
 def get_end_energy_data(year, state='BE'):
-    """End energy demand from energy balance (reegis_tools)
+    """End energy demand from energy balance (reegis)
     """
     filename_heat_reference = os.path.join(
         cfg.get('paths', 'oeq'), 'heat_reference_TJ_{0}_{1}.csv'.format(
             year, state))
 
     if not os.path.isfile(filename_heat_reference):
-        eb = reegis_tools.energy_balance.get_states_balance(
+        eb = reegis.energy_balance.get_states_balance(
             year=year, grouped=True)
         end_energy_table = eb.loc[state]
         end_energy_table.to_csv(filename_heat_reference)
@@ -278,7 +278,7 @@ def create_standardised_heat_load_profile(shlp, year):
     pandas.DataFrame
 
     """
-    avg_temp_berlin = (reegis_tools.coastdat.federal_state_average_weather(
+    avg_temp_berlin = (reegis.coastdat.federal_state_average_weather(
         year, 'temp_air')['BE'])
 
     # Calculate the average temperature in degree Celsius
@@ -367,11 +367,11 @@ def create_heat_profiles(year, region='berlin'):
  
     # Level the overall heat demand with the heat demand from the energy
     # balance. Get energy balance first.
-    end_energy_table = reegis_tools.heat_demand.heat_demand(year).loc['BE']
+    end_energy_table = reegis.heat_demand.heat_demand(year).loc['BE']
 
-    # bmwi_table = reegis_tools.bmwi.read_bmwi_sheet_7()
-    tab_a = reegis_tools.bmwi.read_bmwi_sheet_7('a')
-    tab_b = reegis_tools.bmwi.read_bmwi_sheet_7('b')
+    # bmwi_table = reegis.bmwi.read_bmwi_sheet_7()
+    tab_a = reegis.bmwi.read_bmwi_sheet_7('a')
+    tab_b = reegis.bmwi.read_bmwi_sheet_7('b')
 
     # calculate the fraction of process energy and building heat (with dhw)
     heat_process = {}
@@ -427,7 +427,7 @@ def create_heat_profiles(year, region='berlin'):
     # Create a table with absolute heat demand for each fuel and each sector
     # Industrial building heat will be treated as retail
     frac_cols = [x for x in data.columns if 'frac_' in x]
-    two_level_columns = pd.MultiIndex(levels=[[], []], labels=[[], []])
+    two_level_columns = pd.MultiIndex(levels=[[], []], codes=[[], []])
     abs_data = pd.DataFrame(index=data.index, columns=two_level_columns)
     for col in frac_cols:
         for t in ['ghd', 'mfh']:

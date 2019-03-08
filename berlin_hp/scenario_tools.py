@@ -19,8 +19,8 @@ import oemof.tools.logger as logger
 import oemof.solph as solph
 
 # internal modules
-import reegis_tools.config as cfg
-import reegis_tools.scenario_tools
+import reegis.config as cfg
+import reegis.scenario_tools
 
 
 class Label(namedtuple('solph_label', ['cat', 'tag', 'subtag', 'region'])):
@@ -30,7 +30,7 @@ class Label(namedtuple('solph_label', ['cat', 'tag', 'subtag', 'region'])):
         return '_'.join(map(str, self._asdict().values()))
 
 
-class Scenario(reegis_tools.scenario_tools.Scenario):
+class Scenario(reegis.scenario_tools.Scenario):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -43,7 +43,7 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
     # Create  a special dictionary that will raise an error if a key is
     # updated. This avoids the
     if nodes is None:
-        nodes = reegis_tools.scenario_tools.NodeDict()
+        nodes = reegis.scenario_tools.NodeDict()
 
     # Global commodity sources
     cs = table_collection['commodity_sources'][region]

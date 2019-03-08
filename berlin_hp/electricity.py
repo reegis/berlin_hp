@@ -13,18 +13,21 @@ __license__ = "GPLv3"
 import pandas as pd
 import os
 import logging
+import datetime
+
 from xml.etree import ElementTree
 
 import oemof.tools.logger as logger
 
-import reegis_tools.config as cfg
+import reegis.config as cfg
 
 import berlin_hp.download
 
 
 def fill_data_gaps(df):
     logging.info('Fill the gaps and resample to hourly values.')
-    df.index = pd.to_datetime(df.index)
+    df.index = pd.DatetimeIndex(
+        df.reset_index()['index'].str.slice(0, 19))
     df = df.apply(pd.to_numeric)
     df = df.replace(0, float('nan'))
     for col in df.columns:
@@ -58,8 +61,8 @@ def convert_net_xml2df(year, filename, hourly=True):
     df = fill_data_gaps(df)
 
     # cut the time series to the given year
-    start_date = '{0}-1-1'.format(year)
-    end_date = '{0}-1-1'.format(year + 1)
+    start_date = datetime.datetime(year, 1, 1)
+    end_date = datetime.datetime(year + 1, 1, 1)
     df = df.loc[(df.index >= start_date) & (df.index < end_date)]
 
     # resample to hourly values if hourly is set to True
@@ -104,7 +107,8 @@ def get_electricity_demand(year, hourly=True, district=None):
                                                    district=district_name)
 
     if not os.path.isfile(xml_filename):
-        logging.info("Download Berlin grid data for {0} as xml.".format(year))
+        logging.info("Download {0} grid data for {1} as xml.".format(district,
+                                                                     year))
         xml_filename = berlin_hp.download.get_berlin_net_data(
             year, district=district)
 
@@ -112,7 +116,7 @@ def get_electricity_demand(year, hourly=True, district=None):
         df = convert_net_xml2df(year, xml_filename, hourly=hourly)
         df.to_csv(csv_filename)
 
-    msg = ("The unit for the electricity demand of the source is kW. Values"
+    msg = ("The unit for the electricity demand of the source is kW. Values "
            "will be divided by 1000 to get MW.")
     logging.warning(msg)
 
@@ -121,15 +125,20 @@ def get_electricity_demand(year, hourly=True, district=None):
 
 if __name__ == "__main__":
     logger.define_logging(file_level=logging.INFO)
-    c = []
-    for y in [2012, 2013, 2014, 2015, 2016]:
-        d = get_electricity_demand(y, district='Treptow-Koepenick')
-        if d.isnull().values.any():
-            for column in d.columns:
-                if d[column].isnull().any():
-                        c.append(column)
-            print(d.loc[d.usage.isnull()])
-        if len(c) < 1:
-            print("Everything is fine.")
-        else:
-            print(c)
+    d_list = ['berlin', 'Pankow', 'Lichtenberg', 'Marzahn-Hellersdorf',
+              'Treptow-Koepenick', 'Neukoelln', 'Friedrichshain-Kreuzberg',
+              'Mitte', 'Tempelhof-Schoeneberg', 'Steglitz-Zehlendorf',
+              'Charlottenburg-Wilmersdorf', 'Reinickendorf', 'Spandau']
+    for district in d_list:
+        c = []
+        for y in [2012, 2013, 2014, 2015, 2016]:
+            d = get_electricity_demand(y, district=district)
+            if d.isnull().values.any():
+                for column in d.columns:
+                    if d[column].isnull().any():
+                            c.append(column)
+                print(d.loc[d.usage.isnull()])
+            if len(c) < 1:
+                print("Everything is fine for {0}.".format(district))
+            else:
+                print(c)

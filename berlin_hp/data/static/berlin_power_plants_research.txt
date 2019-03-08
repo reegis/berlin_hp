@@ -1,6 +1,7 @@
 Masterarbeit Andreas von Recklinghausen Tabelle A.7.
 
 - fixed implausible values
+- own research
 
 commissioning: year
 decommissioning: year

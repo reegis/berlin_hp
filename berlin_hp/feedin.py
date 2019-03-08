@@ -20,11 +20,11 @@ import pandas as pd
 from oemof.tools import logger
 
 # internal modules
-import reegis_tools.coastdat
+import reegis.coastdat
 
 
 def get_berlin_feedin(year, feedin_type):
-    f = reegis_tools.coastdat.get_feedin_by_state(year, feedin_type, 'BE')
+    f = reegis.coastdat.get_feedin_by_state(year, feedin_type, 'BE')
     return f
 
 

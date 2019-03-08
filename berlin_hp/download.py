@@ -8,7 +8,7 @@ Created on Tue Mar 15 16:33:38 2016
 import requests
 import os
 from owslib.wfs import WebFeatureService
-from reegis_tools import config as cfg
+from reegis import config as cfg
 import subprocess as sub
 import geopandas as gpd
 import logging

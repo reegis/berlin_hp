@@ -3,12 +3,12 @@ import datetime
 import logging
 import os
 
-import reegis_tools.config as cfg
-import reegis_tools.commodity_sources
-import reegis_tools.powerplants
-import reegis_tools.coastdat as coastdat
+import reegis.config as cfg
+import reegis.commodity_sources
+import reegis.powerplants
+import reegis.coastdat as coastdat
 
-# import reegis_tools.demand as de21_demand
+# import reegis.demand as de21_demand
 
 import oemof.tools.logger as logger
 
@@ -96,7 +96,8 @@ def scenario_powerplants(year, ts):
 
 
 def scenario_volatile_sources(year):
-    pp = reegis_tools.powerplants.get_pp_by_year(year, overwrite_capacity=True)
+    pp = reegis.powerplants.get_reegis_powerplants(
+        year, overwrite_capacity=True)
     re = pd.DataFrame()
     for pp_type in ['Wind', 'Solar']:
         re.loc['capacity', pp_type] = round(pp.loc[
@@ -134,7 +135,7 @@ def commodity_sources(year):
 
 
 def scenario_commodity_sources(year, use_znes_2014=True):
-    cs = reegis_tools.commodity_sources.get_commodity_sources()
+    cs = reegis.commodity_sources.get_commodity_sources()
     rename_cols = {key.lower(): value for key, value in
                    cfg.get_dict('source_names').items()}
     cs = cs.rename(columns=rename_cols)
