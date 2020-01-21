@@ -19,7 +19,7 @@ import oemof.tools.logger as logger
 import oemof.solph as solph
 
 # internal modules
-from reegis import config as cfg
+import reegis.config as cfg
 from deflex import scenario_tools
 
 

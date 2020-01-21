@@ -24,9 +24,9 @@ import demandlib.bdew as bdew
 
 # internal modules
 from reegis import config as cfg
-import reegis.energy_balance
+from reegis import energy_balance
+from reegis import demand_heat
 import reegis.coastdat
-import reegis
 import reegis.energy_balance
 import reegis.geometries
 import reegis.bmwi
@@ -96,94 +96,94 @@ def fill_fraction_column(data):
 
 def demand_by(data, demand_column, heating_systems=None,
               building_types=None, remove_string='', percentage=False):
-        """
-        Adds a new table to the hdf-file where the demand is divided by
-        building types and/or heating systems.
+    """
+    Adds a new table to the hdf-file where the demand is divided by
+    building types and/or heating systems.
 
-        Parameters
-        ----------
-        data : pandas.DataFrame
-        demand_column : string
-            Name of the column with the overall demand
-        heating_systems : list of strings
-            List of column names. The columns should contain the
-             fraction of each heating system. The sum of all these
-             columns should be 1 (or 100) for each row. If the sum is
-             100 the percentage parameter (prz) must be set to True
-        building_types : dictionary or None
-            All building types with their condition. If None no distinction
-            between building types.
-        remove_string : string
-            Part of the column names of the heating systems that
-             should be removed to name the results. If the column is
-             name "fraction_of_district_heating" the string could be
-             "fraction_of_" to use just "district_heating" for the name
-             of the result column.
-        percentage : boolean
-            True if the fraction of the heating system columns sums up
-            to hundred instead of one.
-        Returns
-        -------
+    Parameters
+    ----------
+    data : pandas.DataFrame
+    demand_column : string
+        Name of the column with the overall demand
+    heating_systems : list of strings
+        List of column names. The columns should contain the
+         fraction of each heating system. The sum of all these
+         columns should be 1 (or 100) for each row. If the sum is
+         100 the percentage parameter (prz) must be set to True
+    building_types : dictionary or None
+        All building types with their condition. If None no distinction
+        between building types.
+    remove_string : string
+        Part of the column names of the heating systems that
+         should be removed to name the results. If the column is
+         name "fraction_of_district_heating" the string could be
+         "fraction_of_" to use just "district_heating" for the name
+         of the result column.
+    percentage : boolean
+        True if the fraction of the heating system columns sums up
+        to hundred instead of one.
+    Returns
+    -------
 
-        """
-        if percentage:
-            prz = 100
-        else:
-            prz = 1
+    """
+    if percentage:
+        prz = 100
+    else:
+        prz = 1
 
-        # if building_types is None all building will be fetched
-        if building_types is None:
-            building_types = {'all': '{0} == {0}'.format(demand_column)}
+    # if building_types is None all building will be fetched
+    if building_types is None:
+        building_types = {'all': '{0} == {0}'.format(demand_column)}
 
-        # Create an empty DataFrame with the same index as the data DataFrame
-        demand_by_building = pd.DataFrame(
-            index=data.index)
+    # Create an empty DataFrame with the same index as the data DataFrame
+    demand_by_building = pd.DataFrame(
+        index=data.index)
 
-        # Loop over the building types and use the condition to filter.
-        # The value from demand column is written into the new condition
-        # column if the condition  is true
-        for btype, condition in building_types.items():
-            demand_by_building.loc[data.query(
-                condition).index, btype] = (
-                data[demand_column][data.query(condition).index])
+    # Loop over the building types and use the condition to filter.
+    # The value from demand column is written into the new condition
+    # column if the condition  is true
+    for btype, condition in building_types.items():
+        demand_by_building.loc[data.query(
+            condition).index, btype] = (
+            data[demand_column][data.query(condition).index])
 
-        # Create an empty DataFrame with the same index as the data DataFrame
-        demand = pd.DataFrame(index=data.index)
+    # Create an empty DataFrame with the same index as the data DataFrame
+    demand = pd.DataFrame(index=data.index)
 
-        # Get the columns from the buildings condition
-        loop_list = demand_by_building.keys()
+    # Get the columns from the buildings condition
+    loop_list = demand_by_building.keys()
 
-        # If heating system is None do not filter.
-        if heating_systems is None:
-            heating_systems = []
-            loop_list = []
-            logging.error(
-                "Demand_by without heating systems is not implemented")
+    # If heating system is None do not filter.
+    if heating_systems is None:
+        heating_systems = []
+        loop_list = []
+        logging.error(
+            "Demand_by without heating systems is not implemented")
 
-        blist = list()
-        for btype in loop_list:
-            # Create renaming dictionary
-            rename_dict = {
-                col: 'demand_' + btype + '_' + col.replace(
-                    remove_string, '')
-                for col in heating_systems}
+    blist = list()
+    for btype in loop_list:
+        # Create renaming dictionary
+        rename_dict = {
+            col: 'demand_' + btype + '_' + col.replace(
+                remove_string, '')
+            for col in heating_systems}
 
-            # Multiply each buildings column with the heating system fraction
-            demand = demand.combine_first(
-                data[heating_systems].multiply(
-                    demand_by_building[btype], axis='index').div(prz))
+        # Multiply each buildings column with the heating system fraction
+        demand = demand.combine_first(
+            data[heating_systems].multiply(
+                demand_by_building[btype], axis='index').div(prz))
 
-            # Rename the columns
-            demand = demand.rename(columns=rename_dict)
+        # Rename the columns
+        demand = demand.rename(columns=rename_dict)
 
-            # Create a list with name of building columns with
-            blist.extend(list((btype, )) * len(heating_systems))
-        hlist = heating_systems * len(set(blist))
-        multindex = pd.MultiIndex.from_tuples(list(zip(blist, hlist)),
-                                              names=['first', 'second'])
+        # Create a list with name of building columns with
+        blist.extend(list((btype, )) * len(heating_systems))
+    hlist = heating_systems * len(set(blist))
+    multindex = pd.MultiIndex.from_tuples(list(zip(blist, hlist)),
+                                          names=['first', 'second'])
 
-        return pd.DataFrame(data=demand.as_matrix(), columns=multindex,
-                            index=data.index)
+    return pd.DataFrame(data=demand.as_matrix(), columns=multindex,
+                        index=data.index)
 
 
 def dissolve(data, level, columns=None):
@@ -234,7 +234,7 @@ def get_end_energy_data(year, state='BE'):
             year, state))
 
     if not os.path.isfile(filename_heat_reference):
-        eb = reegis.energy_balance.get_states_balance(
+        eb = energy_balance.get_usage_balance(
             year=year, grouped=True)
         end_energy_table = eb.loc[state]
         end_energy_table.to_csv(filename_heat_reference)
@@ -342,7 +342,7 @@ def create_heat_profiles(year, region='berlin'):
     # areas of district heating systems in Berlin
     distr_heat_areas = get_district_heating_areas()
     data = data.merge(distr_heat_areas[['gml_id', 'STIFT']],
-                          left_on='block', right_on='gml_id', how='left')
+                      left_on='block', right_on='gml_id', how='left')
 
     # Merge the heat-factor for each building type to the alkis types
     data = data.merge(heat_factor, left_on='building_function',
@@ -367,7 +367,7 @@ def create_heat_profiles(year, region='berlin'):
  
     # Level the overall heat demand with the heat demand from the energy
     # balance. Get energy balance first.
-    end_energy_table = reegis.heat_demand.heat_demand(year).loc['BE']
+    end_energy_table = demand_heat.heat_demand(year).loc['BE']
 
     # bmwi_table = reegis.bmwi.read_bmwi_sheet_7()
     tab_a = reegis.bmwi.read_bmwi_sheet_7('a')
