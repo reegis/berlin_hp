@@ -3,26 +3,26 @@ import datetime
 import logging
 import os
 
-import reegis.config as cfg
+from reegis import config as cfg
 import reegis.commodity_sources
 import reegis.powerplants
 import reegis.coastdat as coastdat
+from reegis import geometries
 
 # import reegis.demand as de21_demand
 
 import oemof.tools.logger as logger
 
-from berlin_hp import feedin
 import berlin_hp.heat as heat
 import berlin_hp.electricity
 import berlin_hp.scenario_tools as scenario_tools
 
 
-def create_scenario(year):
+def create_scenario(regions, year, name):
     table_collection = {}
 
     logging.info('BASIC SCENARIO - FEED-IN TIME SERIES')
-    table_collection['time_series'] = scenario_feedin(year)
+    table_collection['time_series'] = scenario_feedin(regions, year, name)
 
     logging.info('BASIC SCENARIO - HEAT DEMAND TIME SERIES')
     table_collection['time_series'] = scenario_heat_profiles(
@@ -107,8 +107,13 @@ def scenario_volatile_sources(year):
     return re
 
 
-def scenario_feedin(year):
-    return coastdat.scenario_feedin(year, 'BE')
+def scenario_feedin(regions, year, name, wy=None):
+    try:
+        feedin = coastdat.scenario_feedin(year, name, weather_year=wy)
+    except FileNotFoundError:
+        coastdat.get_feedin_per_region(year, regions, name, weather_year=wy)
+        feedin = coastdat.scenario_feedin(year, name, weather_year=wy)
+    return feedin
 
 
 def commodity_sources(year):
@@ -180,8 +185,8 @@ def scenario_elec_demand(year, time_series):
     return time_series
 
 
-def create_basic_scenario(year):
-    table_collection = create_scenario(year)
+def create_basic_scenario(regions, year, name):
+    table_collection = create_scenario(regions, year, name)
     name = '{0}_{1}_{2}'.format('berlin_hp', year, 'single')
     sce = scenario_tools.Scenario(table_collection=table_collection,
                                   name=name, year=year)
@@ -193,8 +198,12 @@ def create_basic_scenario(year):
 if __name__ == "__main__":
     logger.define_logging()
     start = datetime.datetime.now()
+    berlin_district_fn = os.path.join(
+        cfg.get('paths', 'geo_berlin'), 'berlin.csv')
+    reg = geometries.load(fullname=berlin_district_fn, index_col='gid')
+    n = 'BE'
     for y in [2014, 2013, 2012]:
-        create_basic_scenario(y)
+        create_basic_scenario(reg, y, n)
         mesg = "Basic scenario for {0} created: {1}"
         logging.info(mesg.format(y, datetime.datetime.now() - start))
     logging.info("Done: {0}".format(datetime.datetime.now() - start))

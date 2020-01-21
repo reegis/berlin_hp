@@ -5,7 +5,7 @@ from datetime import datetime
 import pandas as pd
 import geopandas as gpd
 
-import reegis.config as cfg
+import reegis as cfg
 import reegis.commodity_sources
 import reegis.powerplants
 import reegis.coastdat as coastdat

@@ -2,12 +2,12 @@
 
 """Aggregating feed-in time series for the model regions.
 
-Copyright (c) 2016-2018 Uwe Krien <uwe.krien@rl-institut.de>
+SPDX-FileCopyrightText: 2016-2019 Uwe Krien <krien@uni-bremen.de>
 
-SPDX-License-Identifier: GPL-3.0-or-later
+SPDX-License-Identifier: MIT
 """
-__copyright__ = "Uwe Krien <uwe.krien@rl-institut.de>"
-__license__ = "GPLv3"
+__copyright__ = "Uwe Krien <krien@uni-bremen.de>"
+__license__ = "MIT"
 
 # Python libraries
 import logging
@@ -56,8 +56,8 @@ def process_alkis_buildings(shapefile_out, table, remove_non_heated=True):
     # LageZurErd != 1200 : Remove underground buildings
     logging.info("Length of data set before removing parts: {0}".format(
         len(geo_table)))
-    geo_table = geo_table[geo_table['Bauart_sch'] == 0]
-    geo_table = geo_table[geo_table['LageZurErd'] != 1200]
+    geo_table = geo_table[geo_table["BAT"].isnull()]
+    geo_table = geo_table[geo_table["OFL"] != 1200]
 
     # Remove all data sets that are marked es non-heated in the alkis heat
     # factor table if remove_non_heated is set to True.
@@ -67,7 +67,7 @@ def process_alkis_buildings(shapefile_out, table, remove_non_heated=True):
             cfg.get('oeq', 'alkis_heat_factor_table'))
         heat_factor = pd.read_csv(filename_heat_factor, index_col=[0])
         non_heated = list(heat_factor.loc[heat_factor.heat_factor == 0].index)
-        geo_table = geo_table[~geo_table['Gebaeudefu'].isin(non_heated)]
+        geo_table = geo_table[~geo_table['BEZGFK'].isin(non_heated)]
 
     logging.info("Length of data set after removing parts: {0}".format(
         len(geo_table)))

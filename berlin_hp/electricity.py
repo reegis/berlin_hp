@@ -2,12 +2,12 @@
 
 """Adapting the general reegis power plants to the de21 model.
 
-Copyright (c) 2016-2018 Uwe Krien <uwe.krien@rl-institut.de>
+SPDX-FileCopyrightText: 2016-2019 Uwe Krien <krien@uni-bremen.de>
 
-SPDX-License-Identifier: GPL-3.0-or-later
+SPDX-License-Identifier: MIT
 """
-__copyright__ = "Uwe Krien <uwe.krien@rl-institut.de>"
-__license__ = "GPLv3"
+__copyright__ = "Uwe Krien <krien@uni-bremen.de>"
+__license__ = "MIT"
 
 
 import pandas as pd
@@ -19,7 +19,7 @@ from xml.etree import ElementTree
 
 import oemof.tools.logger as logger
 
-import reegis.config as cfg
+import reegis as cfg
 
 import berlin_hp.download
 
