@@ -145,7 +145,7 @@ def merge_maps():
     alkis = gpd.read_file(shapefile_alkis)
 
     logging.info("Join alkis buildings with block data...")
-    alkis = alkis[['AnzahlDerO', 'area', 'perimeter', 'Gebaeudefu', 'gml_id',
+    alkis = alkis[['AOG', 'area', 'perimeter', 'BEZGFK', 'gml_id',
                    'geometry']]
     block_j = polygons[
         ['SCHL5', 'PLR', 'STAT', 'TYPKLAR', 'EW_HA', 'geometry']]
