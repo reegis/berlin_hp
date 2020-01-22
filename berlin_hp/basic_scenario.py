@@ -101,7 +101,7 @@ def scenario_volatile_sources(year):
     re = pd.DataFrame()
     for pp_type in ['Wind', 'Solar']:
         re.loc['capacity', pp_type] = round(pp.loc[
-            (pp.federal_states == 'BE') &
+            (pp["BE"] == 1.0) &
             (pp.energy_source_level_2 == pp_type)].sum().capacity, 1)
     re.columns = pd.MultiIndex.from_product([['BE'], re.columns])
     return re
@@ -111,7 +111,8 @@ def scenario_feedin(regions, year, name, wy=None):
     try:
         feedin = coastdat.scenario_feedin(year, name, weather_year=wy)
     except FileNotFoundError:
-        coastdat.get_feedin_per_region(year, regions, name, weather_year=wy)
+        coastdat.get_feedin_per_region(year, regions, name, weather_year=wy,
+                                       subregion=True)
         feedin = coastdat.scenario_feedin(year, name, weather_year=wy)
     return feedin
 
@@ -172,7 +173,7 @@ def scenario_heat_profiles(year, ts, basic_scenario=True):
         if '_' in col:
             df[(dh_name, col)] = df[(dc_name, col)]
             del df[(dc_name, col)]
-
+    df.reset_index(drop=True, inplace=True)
     df = pd.concat([ts, df], axis=1)
     if basic_scenario is True:
         df['decentralised_demand', 'elec'] = 0

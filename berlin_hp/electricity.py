@@ -19,7 +19,7 @@ from xml.etree import ElementTree
 
 import oemof.tools.logger as logger
 
-import reegis as cfg
+from reegis import config as cfg
 
 import berlin_hp.download
 
