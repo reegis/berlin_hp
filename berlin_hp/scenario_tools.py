@@ -84,8 +84,8 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
             nodes[vs_label] = solph.Source(
                 label=vs_label,
                 outputs={nodes[elec_bus_label]: solph.Flow(
-                    actual_value=feedin, nominal_value=capacity,
-                    fixed=True, emission=0)})
+                    fix=feedin, nominal_value=capacity,
+                    emission=0)})
 
     # Decentralised heating systems
     dh = table_collection['decentralised_heating']
@@ -123,16 +123,16 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
         nodes[d_heat_demand_label] = solph.Sink(
                 label=d_heat_demand_label,
                 inputs={nodes[heat_bus_label]: solph.Flow(
-                    actual_value=ts['decentralised_demand', fuel],
-                    nominal_value=1, fixed=True)})
+                    fix=ts['decentralised_demand', fuel],
+                    nominal_value=1)})
 
     # Electricity demand
     elec_demand_label = Label('demand', 'electricity', 'all', region)
     nodes[elec_demand_label] = solph.Sink(
         label=elec_demand_label,
         inputs={nodes[elec_bus_label]: solph.Flow(
-            actual_value=ts['electricity', 'demand'],
-            nominal_value=1, fixed=True)})
+            fix=ts['electricity', 'demand'],
+            nominal_value=1)})
 
     # District heating demand
     for system in ts['district_heating_demand'].columns:
@@ -144,8 +144,8 @@ def nodes_from_table_collection(table_collection, nodes=None, region='BE'):
             nodes[dh_demand_label] = solph.Sink(
                 label=dh_demand_label,
                 inputs={nodes[bus_label]: solph.Flow(
-                    actual_value=ts['district_heating_demand', system],
-                    nominal_value=1, fixed=True)})
+                    fix=ts['district_heating_demand', system],
+                    nominal_value=1)})
 
     # Prepare the input table for power plants
     pp = table_collection['powerplants'][region].copy()
