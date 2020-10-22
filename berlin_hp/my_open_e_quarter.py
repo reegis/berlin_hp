@@ -23,7 +23,10 @@ import geopandas as gpd
 import oemof.tools.logger as logger
 
 # internal modules
-import Open_eQuarterPy.building_evaluation as be
+try:
+    import Open_eQuarterPy.building_evaluation as be
+except ModuleNotFoundError:
+    be = None
 from reegis import config as cfg, geometries
 import berlin_hp.download as download
 
