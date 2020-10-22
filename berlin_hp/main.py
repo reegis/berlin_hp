@@ -10,72 +10,76 @@ __copyright__ = "Uwe Krien <krien@uni-bremen.de>"
 __license__ = "MIT"
 
 
-# Python libraries
-import os
 import logging
+import os
 from datetime import datetime
-import time
-import traceback
 
-# oemof packages
-from oemof.tools import logger
-
-# internal modules
-import reegis as cfg
 import berlin_hp
+from berlin_hp import config as cfg
+from oemof.tools import logger
 
 
 def stopwatch():
-    if not hasattr(stopwatch, 'start'):
+    if not hasattr(stopwatch, "start"):
         stopwatch.start = datetime.now()
     return str(datetime.now() - stopwatch.start)[:-7]
 
 
-def main(year):
+def main(
+    year, path=None, file=None, resultpath=None, solver="cbc", graph=False
+):
     stopwatch()
 
-    sc = berlin_hp.Scenario(name='berlin_hp', year=year, debug=False)
+    sc = berlin_hp.Scenario(year=year, name="berlin_hp", debug=False)
 
-    path = os.path.join(cfg.get('paths', 'scenario'), 'berlin_hp', str(year))
+    if path is None:
+        path = os.path.join(
+            cfg.get("paths", "scenario"), "berlin_hp", str(year)
+        )
 
     logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
-    excel_fn = os.path.join(
-        path, '_'.join(['berlin_hp', str(year), 'single']) + '.xls')
+    if file is None:
+        excel_fn = os.path.join(
+            path, "_".join(["berlin_hp", str(year), "single"]) + ".xls"
+        )
+    else:
+        excel_fn = os.path.join(path, file)
 
     if not os.path.isfile(excel_fn):
         berlin_hp.basic_scenario.create_basic_scenario(year)
 
     sc.load_excel(excel_fn)
-    sc.check_table('time_series')
+    sc.check_table("time_series")
 
     logging.info("Add nodes to the EnergySystem: {0}".format(stopwatch()))
-    sc.add_nodes2solph()
+    nodes = sc.create_nodes()
+    sc.add_nodes(nodes)
 
     # Save energySystem to '.graphml' file.
-    sc.plot_nodes(filename=os.path.join(path, 'berlin_hp'),
-                  remove_nodes_with_substrings=['bus_cs'])
+    if graph is True:
+        sc.plot_nodes(
+            filename=os.path.join(path, "berlin_hp"),
+            remove_nodes_with_substrings=["bus_cs"],
+        )
 
     logging.info("Create the concrete model: {0}".format(stopwatch()))
     sc.create_model()
 
     logging.info("Solve the optimisation model: {0}".format(stopwatch()))
-    sc.solve()
+    sc.solve(solver=solver)
 
     logging.info("Solved. Dump results: {0}".format(stopwatch()))
-    sc.dump_es(os.path.join(path, 'berlin_hp_{0}_single.esys'.format(
-        str(year))))
+    if resultpath is None:
+        resultpath = os.path.join(path, "results_{0}".format(solver))
 
-    logging.info("All done. berlin_hp finished without errors: {0}".format(
-        stopwatch()))
+    sc.dump_es(
+        os.path.join(resultpath, "berlin_hp_{0}_single.esys".format(str(year)))
+    )
+
+    logging.info(
+        "All done. berlin_hp finished without errors: {0}".format(stopwatch())
+    )
 
 
 if __name__ == "__main__":
-    logger.define_logging()
-    for y in [2014]:
-        try:
-            main(y)
-        except Exception as e:
-            logging.error(traceback.format_exc())
-            time.sleep(0.5)
-            logging.error(e)
-            time.sleep(0.5)
+    pass
