@@ -17,7 +17,7 @@ import berlin_hp.heat as heat
 import berlin_hp.electricity as electricity
 import berlin_hp.download as download
 import berlin_hp.scenario_tools as scenario_tools
-from berlin_hp.scenario_tools import Scenario
+from berlin_hp.scenario_tools import BerlinScenario
 
 
 def stopwatch():

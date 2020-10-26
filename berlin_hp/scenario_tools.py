@@ -30,9 +30,12 @@ class Label(namedtuple('solph_label', ['cat', 'tag', 'subtag', 'region'])):
         return '_'.join(map(str, self._asdict().values()))
 
 
-class Scenario(scenario_tools.Scenario):
+class BerlinScenario(scenario_tools.Scenario):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def load_excel(self, filename=None, index_header="berlin_index_header"):
+        super().load_excel(filename, index_header=index_header)
 
     def create_nodes(self, nodes=None, region='BE'):
         return nodes_from_table_collection(
