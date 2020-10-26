@@ -25,12 +25,20 @@ def stopwatch():
     return str(datetime.now() - stopwatch.start)[:-7]
 
 
+def model_scenarios(scenarios):
+    for scenario in scenarios:
+        y = int([x for x in scenario.split("_") if x.isnumeric()][0])
+        path = os.path.dirname(scenario)
+        file = os.path.basename(scenario)
+        main(y, path=path, file=file)
+
+
 def main(
     year, path=None, file=None, resultpath=None, solver="cbc", graph=False
 ):
     stopwatch()
 
-    sc = berlin_hp.Scenario(year=year, name="berlin_hp", debug=False)
+    sc = berlin_hp.BerlinScenario(year=year, name="berlin_hp", debug=False)
 
     if path is None:
         path = os.path.join(
