@@ -53,9 +53,6 @@ def main(
     else:
         excel_fn = os.path.join(path, file)
 
-    if not os.path.isfile(excel_fn):
-        berlin_hp.basic_scenario.create_basic_scenario(year)
-
     sc.load_excel(excel_fn)
     sc.check_table("time_series")
 
