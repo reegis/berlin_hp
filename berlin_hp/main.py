@@ -16,7 +16,8 @@ from datetime import datetime
 
 import berlin_hp
 from berlin_hp import config as cfg
-from oemof.tools import logger
+from oemof import solph
+from scenario_tools import Label
 
 
 def stopwatch():
@@ -28,36 +29,52 @@ def stopwatch():
 def model_scenarios(scenarios):
     for scenario in scenarios:
         y = int([x for x in scenario.split("_") if x.isnumeric()][0])
-        path = os.path.dirname(scenario)
-        file = os.path.basename(scenario)
-        main(y, path=path, file=file)
+        main(y, scenario)
+
+
+def add_upstream_import_export_nodes(nodes, bus, costs):
+    logging.info("Add upstream prices from {0}".format(costs["name"]))
+    exp_label = Label("export", "electricity", "all", bus.label.region)
+    nodes[exp_label] = solph.Sink(
+        label=exp_label,
+        inputs={bus: solph.Flow(variable_costs=costs["export"])},
+    )
+
+    imp_label = Label("import", "electricity", "all", bus.label.region)
+    nodes[imp_label] = solph.Source(
+        label=imp_label,
+        outputs={bus: solph.Flow(variable_costs=costs["import"])},
+    )
+    return nodes
 
 
 def main(
-    year, path=None, file=None, resultpath=None, solver="cbc", graph=False
+    year,
+    file,
+    resultpath=None,
+    solver="cbc",
+    graph=False,
+    upstream_prices=None,
 ):
     stopwatch()
 
     sc = berlin_hp.BerlinScenario(year=year, name="berlin_hp", debug=False)
-
-    if path is None:
-        path = os.path.join(
-            cfg.get("paths", "scenario"), "berlin_hp", str(year)
-        )
-
+    sc.name = os.path.basename(file).split(".")[0]
+    path = os.path.dirname(file)
     logging.info("Read scenario from excel-sheet: {0}".format(stopwatch()))
-    if file is None:
-        excel_fn = os.path.join(
-            path, "_".join(["berlin_hp", str(year), "single"]) + ".xls"
-        )
-    else:
-        excel_fn = os.path.join(path, file)
-
-    sc.load_excel(excel_fn)
+    sc.load_excel(file)
     sc.check_table("time_series")
 
     logging.info("Add nodes to the EnergySystem: {0}".format(stopwatch()))
     nodes = sc.create_nodes()
+    if upstream_prices is not None:
+        bus = [
+            v
+            for k, v in nodes.items()
+            if k.tag == "electricity" and isinstance(v, solph.Bus)
+        ][0]
+        nodes = add_upstream_import_export_nodes(nodes, bus, upstream_prices)
+        sc.name = "{0}_UP_{1}".format(sc.name, upstream_prices["name"])
     sc.add_nodes(nodes)
 
     # Save energySystem to '.graphml' file.
@@ -78,7 +95,7 @@ def main(
         resultpath = os.path.join(path, "results_{0}".format(solver))
 
     sc.dump_es(
-        os.path.join(resultpath, "berlin_hp_{0}_single.esys".format(str(year)))
+        os.path.join(resultpath, "{0}.esys".format(sc.name))
     )
 
     logging.info(
