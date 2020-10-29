@@ -15,9 +15,8 @@ import os
 from datetime import datetime
 
 import berlin_hp
-from berlin_hp import config as cfg
 from oemof import solph
-from scenario_tools import Label
+from .scenario_tools import Label
 
 
 def stopwatch():
