@@ -33,4 +33,13 @@ setup(
         "demandlib{0}oemof/demandlib/archive/v0.1.7b1.zip".format(github),
         "requests == 2.25.0",
     ],
+    package_data={
+        "berlin_hp": [
+            os.path.join("data", "static", "*.csv"),
+            os.path.join("data", "static", "*.txt"),
+            os.path.join("data", "geometries", "*.csv"),
+            os.path.join("data", "geometries", "*.geojson"),
+            "*.ini",
+        ]
+    },
 )
